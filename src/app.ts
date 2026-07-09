@@ -1,5 +1,6 @@
 import express, { Application } from 'express';
 import cors from 'cors';
+import userRouter from './modules/user';
 
 const app: Application = express();
 
@@ -14,6 +15,5 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
-
-
+app.use('/api/users', userRouter);
 export default app;
