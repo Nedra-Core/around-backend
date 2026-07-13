@@ -11,4 +11,8 @@ export class UserService{
         return await userRepository.createUser(userData);
     }
 
+    async deleteUser(userId: number) : Promise<void> {
+        await userRepository.deleteUser(userId);
+    }
+
 }

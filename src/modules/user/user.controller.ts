@@ -13,6 +13,7 @@ export class UserController {
     private initializeRoutes() {
         this.router.get('/', this.getUsers);
         this.router.post('/', this.registerUser);
+        this.router.delete('/:id', this.deleteUser);
     }
 
     getUsers = async (req: Request, res: Response) => {
@@ -34,5 +35,15 @@ export class UserController {
             res.status(400).json({ error: error.message });
         }
     };
+
+    deleteUser = async (req: Request, res: Response) => {
+        try {
+            const id = Number(req.params.id);
+            await userService.deleteUser(id);
+            res.status(200).json({ message: "User deleted successfully" });
+        } catch (error: any) {
+            res.status(500).json({ error: error.message });
+        }
+    }
 
 }
