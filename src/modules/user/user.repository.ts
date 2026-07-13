@@ -1,4 +1,5 @@
 import { AppDataSource } from "../../config/database";
+import { RegisterDto, UpdateDto } from "./user.dto";
 import { User} from "./user.entity";
 
 export class UserRepository {
@@ -8,13 +9,13 @@ export class UserRepository {
         return await this.userRepository.find();
     }
 
-    async createUser(userData: User): Promise<User> {
-        const user = this.userRepository.create(userData);
+    async createUser(registerDto: RegisterDto): Promise<User> {
+        const user = this.userRepository.create(registerDto);
         return await this.userRepository.save(user);
     }
 
-    async updateUser(userId: number, userData: Partial<User>) : Promise<void> {
-        await this.userRepository.update(userId, userData);
+    async updateUser(userId: number, updateDto: UpdateDto) : Promise<void> {
+        await this.userRepository.update(userId, updateDto);
     }
 
     async deleteUser(userId: number) : Promise<void> {

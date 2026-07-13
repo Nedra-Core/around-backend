@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {Request, Response} from "express";
 import { userService } from "../../container";
+import { mapToRegisterDto, mapToUpdateDto } from "./user.mapper";
 
 export class UserController {
     public router: Router;
@@ -29,8 +30,8 @@ export class UserController {
 
     registerUser = async (req: Request, res: Response) => {
         try{
-            const User = req.body;
-            const newUser = await userService.registerUser(User);
+            const registerDto = mapToRegisterDto(req.body);
+            const newUser = await userService.registerUser(registerDto);
             res.status(201).json(newUser);
         } catch (error: any) {
             res.status(400).json({ error: error.message });
@@ -40,9 +41,9 @@ export class UserController {
     updateUser = async (req: Request, res: Response) => {
         try {
             const id = Number(req.params.id);
-            const userData = req.body;
-            await userService.updateUser(id, userData);
-            res.status(200).json({ message: "User update successfully" });
+            const updateDto = mapToUpdateDto(req.body);
+            await userService.updateUser(id, updateDto);
+            res.status(200).json({ message: "User updated successfully" });
         } catch(error: any) {
             res.status(500).json({ error: error.message });
         }
