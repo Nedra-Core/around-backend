@@ -13,6 +13,10 @@ export class UserRepository {
         return await this.userRepository.save(user);
     }
 
+    async updateUser(userId: number, userData: Partial<User>) : Promise<void> {
+        await this.userRepository.update(userId, userData);
+    }
+
     async deleteUser(userId: number) : Promise<void> {
         await this.userRepository.delete(userId);
     }

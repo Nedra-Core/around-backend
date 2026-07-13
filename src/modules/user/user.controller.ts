@@ -14,6 +14,7 @@ export class UserController {
         this.router.get('/', this.getUsers);
         this.router.post('/', this.registerUser);
         this.router.delete('/:id', this.deleteUser);
+        this.router.put('/:id', this.updateUser);
     }
 
     getUsers = async (req: Request, res: Response) => {
@@ -36,6 +37,17 @@ export class UserController {
         }
     };
 
+    updateUser = async (req: Request, res: Response) => {
+        try {
+            const id = Number(req.params.id);
+            const userData = req.body;
+            await userService.updateUser(id, userData);
+            res.status(200).json({ message: "User update successfully" });
+        } catch(error: any) {
+            res.status(500).json({ error: error.message });
+        }
+    };
+
     deleteUser = async (req: Request, res: Response) => {
         try {
             const id = Number(req.params.id);
@@ -44,6 +56,6 @@ export class UserController {
         } catch (error: any) {
             res.status(500).json({ error: error.message });
         }
-    }
+    };
 
 }

@@ -11,6 +11,10 @@ export class UserService{
         return await userRepository.createUser(userData);
     }
 
+    async updateUser(userId: number, userData: Partial<User>) : Promise<void> {
+        await userRepository.updateUser(userId, userData);
+    }
+
     async deleteUser(userId: number) : Promise<void> {
         await userRepository.deleteUser(userId);
     }
