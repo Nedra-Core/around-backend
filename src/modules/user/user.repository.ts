@@ -18,7 +18,7 @@ export class UserRepository {
     }
 
     async deleteUser(userId: number) : Promise<void> {
-        await this.userRepository.delete(userId);
+        await this.userRepository.update(userId, { isDeleted: true });
     }
 
 }

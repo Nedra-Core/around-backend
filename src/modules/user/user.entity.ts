@@ -22,4 +22,7 @@ export class User {
 
   @Column({default: false})
   isDriver!: boolean;
+
+  @Column({default: false})
+  isDeleted!: boolean;
 }
