@@ -1,6 +1,7 @@
 import {userRepository} from "../../container";
 import { RegisterDto, UpdateDto, ResponseDto } from "./user.dto";
 import { mapToResponseDto } from "./user.mapper";
+import bcrypt from "bcrypt";
 
 export class UserService{
 
@@ -28,7 +29,10 @@ export class UserService{
             throw new Error("Validation failed: Please provide lastName.");
         }
 
-        const user = await userRepository.createUser(registerDto);
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(registerDto.password, saltRounds);
+
+        const user = await userRepository.createUser({ ...registerDto, password: hashedPassword });
         return mapToResponseDto(user);
     }
 
@@ -36,6 +40,12 @@ export class UserService{
 
         if(!updateDto.username && !updateDto.password && !updateDto.firstName && !updateDto.lastName) {
             throw new Error("Validation failed: Please provide at least one valid field to update (username, password, firstName, lastName).");
+        }
+
+        if(updateDto.password) {
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(updateDto.password, saltRounds);
+            updateDto.password = hashedPassword;
         }
 
         await userRepository.updateUser(userId, updateDto);
