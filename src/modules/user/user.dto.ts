@@ -21,3 +21,8 @@ export type ResponseDto = {
     lastName: string;
     isDriver: boolean;
 }
+
+export type LoginDto = {
+    email: string;
+    password: string;
+}

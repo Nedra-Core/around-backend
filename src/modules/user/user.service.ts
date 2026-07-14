@@ -1,5 +1,5 @@
 import {userRepository} from "../../container";
-import { RegisterDto, UpdateDto, ResponseDto } from "./user.dto";
+import { RegisterDto, UpdateDto, ResponseDto, LoginDto } from "./user.dto";
 import { mapToResponseDto } from "./user.mapper";
 import bcrypt from "bcrypt";
 
@@ -33,6 +33,27 @@ export class UserService{
         const hashedPassword = await bcrypt.hash(registerDto.password, saltRounds);
 
         const user = await userRepository.createUser({ ...registerDto, password: hashedPassword });
+        return mapToResponseDto(user);
+    }
+
+    async loginUser(loginDto: LoginDto): Promise<ResponseDto> {
+        if(!loginDto.email) {
+            throw new Error("Validation failed: Please provide email.");
+        }
+        if(!loginDto.password) {
+            throw new Error("Validation failed: Please provide password.");
+        }
+
+        const user = await userRepository.findByEmail(loginDto.email);
+        if (!user) {
+            throw new Error("Authentication failed: User not found.");
+        }
+
+        const isMatch = await bcrypt.compare(loginDto.password, user.password);
+        if (!isMatch) {
+            throw new Error("Authentication failed: Invalid email or password.");
+        }
+
         return mapToResponseDto(user);
     }
 

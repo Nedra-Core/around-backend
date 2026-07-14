@@ -5,6 +5,10 @@ import { User} from "./user.entity";
 export class UserRepository {
     private userRepository = AppDataSource.getRepository(User);
 
+    async findByEmail(email: string): Promise<User | null> {
+        return await this.userRepository.findOne({ where: { email, isDeleted: false } });
+    }
+
     async findAll(): Promise<User[]> {
         return await this.userRepository.find({where: { isDeleted: false }});
     }

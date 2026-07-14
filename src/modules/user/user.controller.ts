@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Request, Response } from "express";
 import { userService } from "../../container";
-import { mapToRegisterDto, mapToUpdateDto } from "./user.mapper";
+import { mapToLoginDto, mapToRegisterDto, mapToUpdateDto } from "./user.mapper";
 import { asyncHandler } from "../../middlewares/async-handler";
 
 export class UserController {
@@ -15,6 +15,7 @@ export class UserController {
     private initializeRoutes() {
         this.router.get('/', this.getUsers);
         this.router.post('/', this.registerUser);
+        this.router.post('/login', this.loginUser);
         this.router.put('/:id', this.updateUser);
         this.router.delete('/:id', this.deleteUser);
     }
@@ -31,6 +32,12 @@ export class UserController {
         const registerDto = mapToRegisterDto(req.body);
         const newUser = await userService.registerUser(registerDto);
         res.status(201).json(newUser);
+    });
+
+    loginUser = asyncHandler(async (req: Request, res: Response) => {
+        const loginDto = mapToLoginDto(req.body);
+        const user = await userService.loginUser(loginDto);
+        res.status(200).json(user);
     });
 
     updateUser = asyncHandler(async (req: Request, res: Response) => {
