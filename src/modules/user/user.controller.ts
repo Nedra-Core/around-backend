@@ -1,7 +1,8 @@
 import { Router } from "express";
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import { userService } from "../../container";
 import { mapToRegisterDto, mapToUpdateDto } from "./user.mapper";
+import { asyncHandler } from "../../middlewares/async-handler";
 
 export class UserController {
     public router: Router;
@@ -18,53 +19,35 @@ export class UserController {
         this.router.delete('/:id', this.deleteUser);
     }
 
-    getUsers = async (req: Request, res: Response) => {
-        try{
-            const users = await userService.getAllUsers();
-            res.json(users);
+    getUsers = asyncHandler(async (req: Request, res: Response) => {
 
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
-        }
-    };
+        const users = await userService.getAllUsers();
+        res.json(users);
 
-    registerUser = async (req: Request, res: Response) => {
-        try{
-            const registerDto = mapToRegisterDto(req.body);
-            const newUser = await userService.registerUser(registerDto);
-            res.status(201).json(newUser);
-        } catch (error: any) {
-            if (error.message.includes("Validation failed")) {
-                res.status(400).json({ error: error.message });
-            } else {
-                res.status(500).json({ error: error.message });
-            }
-        }
-    };
+    });
 
-    updateUser = async (req: Request, res: Response) => {
-        try {
-            const id = Number(req.params.id);
-            const updateDto = mapToUpdateDto(req.body);
-            await userService.updateUser(id, updateDto);
-            res.status(200).json({ message: "User updated successfully" });
-        } catch(error: any) {
-            if (error.message.includes("Validation failed")) {
-                res.status(400).json({ error: error.message });
-            } else {
-                res.status(500).json({ error: error.message });
-            }
-        }
-    };
+    registerUser = asyncHandler(async (req: Request, res: Response) => {
 
-    deleteUser = async (req: Request, res: Response) => {
-        try {
-            const id = Number(req.params.id);
-            await userService.deleteUser(id);
-            res.status(200).json({ message: "User deleted successfully" });
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
-        }
-    };
+        const registerDto = mapToRegisterDto(req.body);
+        const newUser = await userService.registerUser(registerDto);
+        res.status(201).json(newUser);
+    });
+
+    updateUser = asyncHandler(async (req: Request, res: Response) => {
+
+        const id = Number(req.params.id);
+        const updateDto = mapToUpdateDto(req.body);
+        await userService.updateUser(id, updateDto);
+        res.status(200).json({ message: "User updated successfully" });
+
+    });
+
+    deleteUser = asyncHandler(async (req: Request, res: Response) => {
+
+        const id = Number(req.params.id);
+        await userService.deleteUser(id);
+        res.status(200).json({ message: "User deleted successfully" });
+
+    });
 
 }
