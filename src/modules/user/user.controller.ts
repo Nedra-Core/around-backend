@@ -14,8 +14,8 @@ export class UserController {
     private initializeRoutes() {
         this.router.get('/', this.getUsers);
         this.router.post('/', this.registerUser);
-        this.router.delete('/:id', this.deleteUser);
         this.router.put('/:id', this.updateUser);
+        this.router.delete('/:id', this.deleteUser);
     }
 
     getUsers = async (req: Request, res: Response) => {
@@ -34,7 +34,11 @@ export class UserController {
             const newUser = await userService.registerUser(registerDto);
             res.status(201).json(newUser);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            if (error.message.includes("Validation failed")) {
+                res.status(400).json({ error: error.message });
+            } else {
+                res.status(500).json({ error: error.message });
+            }
         }
     };
 
@@ -45,7 +49,11 @@ export class UserController {
             await userService.updateUser(id, updateDto);
             res.status(200).json({ message: "User updated successfully" });
         } catch(error: any) {
-            res.status(500).json({ error: error.message });
+            if (error.message.includes("Validation failed")) {
+                res.status(400).json({ error: error.message });
+            } else {
+                res.status(500).json({ error: error.message });
+            }
         }
     };
 

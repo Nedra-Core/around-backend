@@ -1,7 +1,6 @@
 import {userRepository} from "../../container";
 import { RegisterDto, UpdateDto, ResponseDto } from "./user.dto";
 import { mapToResponseDto } from "./user.mapper";
-import {User} from "./user.entity";
 
 export class UserService{
 
@@ -12,11 +11,33 @@ export class UserService{
     }
 
     async registerUser(registerDto: RegisterDto) : Promise<ResponseDto> {
+
+        if(!registerDto.username) {
+            throw new Error("Validation failed: Please provide username.");
+        }
+        if(!registerDto.email) {
+            throw new Error("Validation failed: Please provide email.");
+        }
+        if(!registerDto.password) {
+            throw new Error("Validation failed: Please provide password."); 
+        }
+        if(!registerDto.firstName) {
+            throw new Error("Validation failed: Please provide firstName.");
+        }
+        if(!registerDto.lastName) {
+            throw new Error("Validation failed: Please provide lastName.");
+        }
+
         const user = await userRepository.createUser(registerDto);
         return mapToResponseDto(user);
     }
 
     async updateUser(userId: number, updateDto: UpdateDto) : Promise<void> {
+
+        if(!updateDto.username && !updateDto.password && !updateDto.firstName && !updateDto.lastName) {
+            throw new Error("Validation failed: Please provide at least one valid field to update (username, password, firstName, lastName).");
+        }
+
         await userRepository.updateUser(userId, updateDto);
     }
 
