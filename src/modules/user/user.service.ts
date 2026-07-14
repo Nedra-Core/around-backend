@@ -1,15 +1,19 @@
 import {userRepository} from "../../container";
-import { RegisterDto, UpdateDto } from "./user.dto";
+import { RegisterDto, UpdateDto, ResponseDto } from "./user.dto";
+import { mapToResponseDto } from "./user.mapper";
 import {User} from "./user.entity";
 
 export class UserService{
 
-    async getAllUsers() : Promise<User[]> {
-        return await userRepository.findAll();
+    async getAllUsers() : Promise<ResponseDto[]> {
+        const users = await userRepository.findAll();
+        const responseDtos: ResponseDto[] = users.map(user => mapToResponseDto(user));
+        return responseDtos;
     }
 
-    async registerUser(registerDto: RegisterDto) : Promise<User> {
-        return await userRepository.createUser(registerDto);
+    async registerUser(registerDto: RegisterDto) : Promise<ResponseDto> {
+        const user = await userRepository.createUser(registerDto);
+        return mapToResponseDto(user);
     }
 
     async updateUser(userId: number, updateDto: UpdateDto) : Promise<void> {

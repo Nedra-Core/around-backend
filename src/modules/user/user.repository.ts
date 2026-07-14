@@ -6,7 +6,7 @@ export class UserRepository {
     private userRepository = AppDataSource.getRepository(User);
 
     async findAll(): Promise<User[]> {
-        return await this.userRepository.find();
+        return await this.userRepository.find({where: { isDeleted: false }});
     }
 
     async createUser(registerDto: RegisterDto): Promise<User> {

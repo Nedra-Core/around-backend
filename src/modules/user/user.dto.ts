@@ -12,3 +12,12 @@ export type UpdateDto = {
     firstName?: string;
     lastName?: string;
 }
+
+export type ResponseDto = {
+    id: number;
+    username: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    isDriver: boolean;
+}

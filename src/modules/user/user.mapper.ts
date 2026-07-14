@@ -1,4 +1,4 @@
-import { RegisterDto, UpdateDto } from "./user.dto";
+import { RegisterDto, UpdateDto, ResponseDto } from "./user.dto";
 
 export const mapToRegisterDto = (data: any): RegisterDto => {
     return {
@@ -18,3 +18,14 @@ export const mapToUpdateDto = (data: any): UpdateDto => {
     if (data.lastName !== undefined) dto.lastName = data.lastName;
     return dto;
 }
+
+export const mapToResponseDto = (data: any): ResponseDto => {
+    return {
+        id: data.id,
+        username: data.username,
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        isDriver: data.isDriver
+    };
+};
