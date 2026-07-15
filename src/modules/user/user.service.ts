@@ -14,7 +14,7 @@ export class UserService{
         return responseDtos;
     }
 
-    async registerUser(registerDto: RegisterDto) : Promise<ResponseDto> {
+    async registerUser(registerDto: RegisterDto) : Promise<AuthResponseDto> {
 
         const existingUserByEmail = await userRepository.findByEmail(registerDto.email);
         if (existingUserByEmail) {
@@ -30,7 +30,17 @@ export class UserService{
         const hashedPassword = await bcrypt.hash(registerDto.password, saltRounds);
 
         const user = await userRepository.createUser({ ...registerDto, password: hashedPassword });
-        return mapToResponseDto(user);
+        const responseDto = mapToResponseDto(user);
+
+        const payload: AuthJwtPayload = { id: user.id, email: user.email };
+        const secretKey = process.env.JWT_SECRET;
+        if (!secretKey) {
+            throw new Error("FATAL ERROR: JWT_SECRET is not defined in environment variables.");
+        }
+        const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
+
+        return { token, user: responseDto };
+
     }
 
     async loginUser(loginDto: LoginDto): Promise<AuthResponseDto> {
