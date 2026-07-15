@@ -9,6 +9,10 @@ export class UserRepository {
         return await this.userRepository.findOne({ where: { email, isDeleted: false } });
     }
 
+    async findByUsername(username: string): Promise<User | null> {
+        return await this.userRepository.findOne({ where: { username, isDeleted: false } });
+    }
+
     async findAll(): Promise<User[]> {
         return await this.userRepository.find({where: { isDeleted: false }});
     }

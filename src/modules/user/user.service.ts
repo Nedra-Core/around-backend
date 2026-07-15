@@ -15,9 +15,14 @@ export class UserService{
 
     async registerUser(registerDto: RegisterDto) : Promise<ResponseDto> {
 
-        const existingUser = await userRepository.findByEmail(registerDto.email);
-        if (existingUser) {
+        const existingUserByEmail = await userRepository.findByEmail(registerDto.email);
+        if (existingUserByEmail) {
             throw new ConflictError("Email already exists.");
+        }
+
+        const existingUserByUsername = await userRepository.findByUsername(registerDto.username);
+        if (existingUserByUsername) {
+            throw new ConflictError("Username already exists.");
         }
 
         const saltRounds = 10;

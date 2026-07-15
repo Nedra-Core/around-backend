@@ -1,7 +1,7 @@
 import { ValidationError } from "../../exceptions/custom.errors";
 
 const isValidString = (value: any, minLength: number = 2): boolean => {
-    return typeof value === 'string' && value.trim().length >= minLength;
+    return typeof value === 'string' && value.trim().length >= minLength && value.trim().length <= 255;
 };
 
 const isValidEmail = (email: any): boolean => {
@@ -10,7 +10,7 @@ const isValidEmail = (email: any): boolean => {
 };
 
 const isStrongPassword = (password: any): boolean => {
-    return typeof password === 'string' && password.length >= 6;
+    return typeof password === 'string' && password.length >= 6 && password.length <= 255;
 };
 
 export const validateRegisterData = (data: any): void => {
