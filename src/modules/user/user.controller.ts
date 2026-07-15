@@ -4,6 +4,7 @@ import { userService } from "../../container";
 import { mapToLoginDto, mapToRegisterDto, mapToUpdateDto } from "./user.mapper";
 import { asyncHandler } from "../../middlewares/async-handler";
 import { validateLoginData, validateRegisterData, validateUpdateData } from "./user.validator";
+import { authGuard } from "../../middlewares/auth";
 
 export class UserController {
     public router: Router;
@@ -14,11 +15,11 @@ export class UserController {
     }
 
     private initializeRoutes() {
-        this.router.get('/', this.getUsers);
+        this.router.get('/', authGuard, this.getUsers);
         this.router.post('/', this.registerUser);
         this.router.post('/login', this.loginUser);
-        this.router.put('/:id', this.updateUser);
-        this.router.delete('/:id', this.deleteUser);
+        this.router.put('/:id', authGuard, this.updateUser);
+        this.router.delete('/:id', authGuard, this.deleteUser);
     }
 
     getUsers = asyncHandler(async (req: Request, res: Response) => {

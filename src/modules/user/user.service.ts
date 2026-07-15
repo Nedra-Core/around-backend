@@ -1,5 +1,6 @@
 import {userRepository} from "../../container";
 import { ConflictError, UnauthorizedError } from "../../exceptions/custom.errors";
+import { AuthJwtPayload } from "../../middlewares/auth";
 import { RegisterDto, UpdateDto, ResponseDto, LoginDto, AuthResponseDto } from "./user.dto";
 import { mapToResponseDto } from "./user.mapper";
 import bcrypt from "bcrypt";
@@ -48,7 +49,8 @@ export class UserService{
         if (!secretKey) {
             throw new Error("FATAL ERROR: JWT_SECRET is not defined in environment variables.");
         }
-        const token = jwt.sign({ id: user.id, email: user.email }, secretKey, { expiresIn: '1h' });
+        const payload: AuthJwtPayload = { id: user.id, email: user.email };
+        const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
 
         return { token, user: mapToResponseDto(user) };
     }
