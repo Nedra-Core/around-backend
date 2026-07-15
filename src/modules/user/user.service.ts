@@ -32,12 +32,7 @@ export class UserService{
         const user = await userRepository.createUser({ ...registerDto, password: hashedPassword });
         const responseDto = mapToResponseDto(user);
 
-        const payload: AuthJwtPayload = { id: user.id, email: user.email };
-        const secretKey = process.env.JWT_SECRET;
-        if (!secretKey) {
-            throw new Error("FATAL ERROR: JWT_SECRET is not defined in environment variables.");
-        }
-        const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
+        const token = this.generateToken(user.id, user.email);
 
         return { token, user: responseDto };
 
@@ -55,12 +50,7 @@ export class UserService{
             throw new UnauthorizedError("Invalid email or password.");
         }
 
-        const secretKey = process.env.JWT_SECRET;
-        if (!secretKey) {
-            throw new Error("FATAL ERROR: JWT_SECRET is not defined in environment variables.");
-        }
-        const payload: AuthJwtPayload = { id: user.id, email: user.email };
-        const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
+        const token = this.generateToken(user.id, user.email);
 
         return { token, user: mapToResponseDto(user) };
     }
@@ -85,6 +75,17 @@ export class UserService{
             throw new UnauthorizedError("You are not authorized to delete this user.");
         }
         await userRepository.deleteUser(targetUserId);
+    }
+
+    private generateToken(id: number, email: string): string {
+
+        const secretKey = process.env.JWT_SECRET;
+        if (!secretKey) {
+            throw new Error("FATAL ERROR: JWT_SECRET is not defined in environment variables.");
+        }
+        const payload: AuthJwtPayload = { id, email };
+        
+        return jwt.sign(payload, secretKey, { expiresIn: '1h' });
     }
 
 }
