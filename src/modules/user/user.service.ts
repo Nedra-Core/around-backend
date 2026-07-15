@@ -14,20 +14,9 @@ export class UserService{
 
     async registerUser(registerDto: RegisterDto) : Promise<ResponseDto> {
 
-        if(!registerDto.username) {
-            throw new Error("Validation failed: Please provide username.");
-        }
-        if(!registerDto.email) {
-            throw new Error("Validation failed: Please provide email.");
-        }
-        if(!registerDto.password) {
-            throw new Error("Validation failed: Please provide password."); 
-        }
-        if(!registerDto.firstName) {
-            throw new Error("Validation failed: Please provide firstName.");
-        }
-        if(!registerDto.lastName) {
-            throw new Error("Validation failed: Please provide lastName.");
+        const existingUser = await userRepository.findByEmail(registerDto.email);
+        if (existingUser) {
+            throw new Error("Conflict error: Email already exists.");
         }
 
         const saltRounds = 10;
@@ -38,13 +27,7 @@ export class UserService{
     }
 
     async loginUser(loginDto: LoginDto): Promise<AuthResponseDto> {
-        if(!loginDto.email) {
-            throw new Error("Validation failed: Please provide email.");
-        }
-        if(!loginDto.password) {
-            throw new Error("Validation failed: Please provide password.");
-        }
-
+       
         const user = await userRepository.findByEmail(loginDto.email);
         if (!user) {
             throw new Error("Authentication failed: User not found.");
@@ -65,10 +48,6 @@ export class UserService{
     }
 
     async updateUser(userId: number, updateDto: UpdateDto) : Promise<void> {
-
-        if(!updateDto.username && !updateDto.password && !updateDto.firstName && !updateDto.lastName) {
-            throw new Error("Validation failed: Please provide at least one valid field to update (username, password, firstName, lastName).");
-        }
 
         if(updateDto.password) {
             const saltRounds = 10;
