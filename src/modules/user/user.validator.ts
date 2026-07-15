@@ -1,3 +1,5 @@
+import { ValidationError } from "../../exceptions/validation.error";
+
 const isValidString = (value: any, minLength: number = 2): boolean => {
     return typeof value === 'string' && value.trim().length >= minLength;
 };
@@ -13,57 +15,57 @@ const isStrongPassword = (password: any): boolean => {
 
 export const validateRegisterData = (data: any): void => {
     if (!data || Object.keys(data).length === 0) {
-        throw new Error("Validation failed: Request body is empty.");
+        throw new ValidationError("Request body is empty.");
     }
 
     if (!isValidString(data.username, 3)) {
-        throw new Error("Validation failed: Username must be a string and at least 3 characters long.");
+        throw new ValidationError("Username must be a string and at least 3 characters long.");
     }
 
     if (!isValidEmail(data.email)) {
-        throw new Error("Validation failed: Please provide a valid email format.");
+        throw new ValidationError("Please provide a valid email format.");
     }
 
     if (!isStrongPassword(data.password)) {
-        throw new Error("Validation failed: Password must be at least 6 characters long.");
+        throw new ValidationError("Password must be at least 6 characters long.");
     }
 
     if (!isValidString(data.firstName, 2) || !isValidString(data.lastName, 2)) {
-        throw new Error("Validation failed: First and last names are required and must be at least 2 characters.");
+        throw new ValidationError("First and last names are required and must be at least 2 characters.");
     }
 
 };
 
 export const validateLoginData = (data: any): void => {
     if (!data || Object.keys(data).length === 0) {
-        throw new Error("Validation failed: Request body is empty.");
+        throw new ValidationError("Request body is empty.");
     }
     if (!isValidEmail(data.email)) {
-        throw new Error("Validation failed: Please provide a valid email format.");
+        throw new ValidationError("Please provide a valid email format.");
     }
     if (!data.password || typeof data.password !== 'string') {
-        throw new Error("Validation failed: Password is required.");
+        throw new ValidationError("Password is required.");
     }
 };
 
 export const validateUpdateData = (data: any): void => {
     if (!data || Object.keys(data).length === 0) {
-        throw new Error("Validation failed: Request body is empty. Nothing to update.");
+        throw new ValidationError("Request body is empty.");
     }
 
     if(!data.username && !data.password && !data.firstName && !data.lastName) {
-            throw new Error("Validation failed: Please provide at least one valid field to update (username, password, firstName, lastName).");
+            throw new ValidationError("Please provide at least one valid field to update (username, password, firstName, lastName).");
         }
 
     if (data.firstName !== undefined && !isValidString(data.firstName, 2)) {
-        throw new Error("Validation failed: First name must be at least 2 characters.");
+        throw new ValidationError("First name must be at least 2 characters.");
     }
 
     if (data.lastName !== undefined && !isValidString(data.lastName, 2)) {
-        throw new Error("Validation failed: Last name must be at least 2 characters.");
+        throw new ValidationError("Last name must be at least 2 characters.");
     }
 
     if (data.password !== undefined && !isStrongPassword(data.password)) {
-        throw new Error("Validation failed: New password must be at least 6 characters.");
+        throw new ValidationError("New password must be at least 6 characters.");
     }
 };

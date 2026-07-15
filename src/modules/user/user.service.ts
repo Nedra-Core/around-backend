@@ -1,4 +1,6 @@
 import {userRepository} from "../../container";
+import { ConflictError } from "../../exceptions/conflict.error";
+import { UnauthorizedError } from "../../exceptions/unauthorized.error";
 import { RegisterDto, UpdateDto, ResponseDto, LoginDto, AuthResponseDto } from "./user.dto";
 import { mapToResponseDto } from "./user.mapper";
 import bcrypt from "bcrypt";
@@ -16,7 +18,7 @@ export class UserService{
 
         const existingUser = await userRepository.findByEmail(registerDto.email);
         if (existingUser) {
-            throw new Error("Conflict error: Email already exists.");
+            throw new ConflictError("Email already exists.");
         }
 
         const saltRounds = 10;
@@ -30,12 +32,12 @@ export class UserService{
        
         const user = await userRepository.findByEmail(loginDto.email);
         if (!user) {
-            throw new Error("Authentication failed: User not found.");
+            throw new UnauthorizedError("Invalid email or password.");
         }
 
         const isMatch = await bcrypt.compare(loginDto.password, user.password);
         if (!isMatch) {
-            throw new Error("Authentication failed: Invalid email or password.");
+            throw new UnauthorizedError("Invalid email or password.");
         }
 
         const secretKey = process.env.JWT_SECRET;
