@@ -1,4 +1,4 @@
-import { ValidationError } from "../../exceptions/validation.error";
+import { ValidationError } from "../../exceptions/custom.errors";
 
 const isValidString = (value: any, minLength: number = 2): boolean => {
     return typeof value === 'string' && value.trim().length >= minLength;

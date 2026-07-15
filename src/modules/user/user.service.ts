@@ -1,6 +1,5 @@
 import {userRepository} from "../../container";
-import { ConflictError } from "../../exceptions/conflict.error";
-import { UnauthorizedError } from "../../exceptions/unauthorized.error";
+import { ConflictError, UnauthorizedError } from "../../exceptions/custom.errors";
 import { RegisterDto, UpdateDto, ResponseDto, LoginDto, AuthResponseDto } from "./user.dto";
 import { mapToResponseDto } from "./user.mapper";
 import bcrypt from "bcrypt";

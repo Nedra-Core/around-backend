@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { BaseError } from '../exceptions/base.error';
+import { BaseError } from '../exceptions/custom.errors';
 
 export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof BaseError) {
