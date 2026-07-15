@@ -55,7 +55,11 @@ export class UserService{
         return { token, user: mapToResponseDto(user) };
     }
 
-    async updateUser(userId: number, updateDto: UpdateDto) : Promise<void> {
+    async updateUser(authUserId: number | undefined, targetUserId: number, updateDto: UpdateDto) : Promise<void> {
+
+        if (authUserId !== targetUserId) {
+            throw new UnauthorizedError("You are not authorized to update this user.");
+        }
 
         if(updateDto.password) {
             const saltRounds = 10;
@@ -63,11 +67,14 @@ export class UserService{
             updateDto.password = hashedPassword;
         }
 
-        await userRepository.updateUser(userId, updateDto);
+        await userRepository.updateUser(targetUserId, updateDto);
     }
 
-    async deleteUser(userId: number) : Promise<void> {
-        await userRepository.deleteUser(userId);
+    async deleteUser(authUserId: number | undefined, targetUserId: number) : Promise<void> {
+        if (authUserId !== targetUserId) {
+            throw new UnauthorizedError("You are not authorized to delete this user.");
+        }
+        await userRepository.deleteUser(targetUserId);
     }
 
 }

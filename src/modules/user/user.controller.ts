@@ -4,7 +4,7 @@ import { userService } from "../../container";
 import { mapToLoginDto, mapToRegisterDto, mapToUpdateDto } from "./user.mapper";
 import { asyncHandler } from "../../middlewares/async-handler";
 import { validateLoginData, validateRegisterData, validateUpdateData } from "./user.validator";
-import { authGuard } from "../../middlewares/auth";
+import { authGuard, AuthRequest } from "../../middlewares/auth";
 
 export class UserController {
     public router: Router;
@@ -47,21 +47,23 @@ export class UserController {
         res.status(200).json(authData);
     });
 
-    updateUser = asyncHandler(async (req: Request, res: Response) => {
+    updateUser = asyncHandler(async (req: AuthRequest, res: Response) => {
 
         validateUpdateData(req.body);
 
-        const id = Number(req.params.id);
+        const targetUserId = Number(req.params.id);
+        const authUserId = req.auth?.id;
         const updateDto = mapToUpdateDto(req.body);
-        await userService.updateUser(id, updateDto);
+        await userService.updateUser(authUserId, targetUserId, updateDto);
         res.status(200).json({ message: "User updated successfully" });
 
     });
 
-    deleteUser = asyncHandler(async (req: Request, res: Response) => {
+    deleteUser = asyncHandler(async (req: AuthRequest, res: Response) => {
 
-        const id = Number(req.params.id);
-        await userService.deleteUser(id);
+        const targetUserId = Number(req.params.id);
+        const authUserId = req.auth?.id;
+        await userService.deleteUser(authUserId, targetUserId);
         res.status(200).json({ message: "User deleted successfully" });
 
     });
