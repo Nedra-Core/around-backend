@@ -1,7 +1,8 @@
 import {userRepository} from "../../container";
-import { RegisterDto, UpdateDto, ResponseDto, LoginDto } from "./user.dto";
+import { RegisterDto, UpdateDto, ResponseDto, LoginDto, AuthResponseDto } from "./user.dto";
 import { mapToResponseDto } from "./user.mapper";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export class UserService{
 
@@ -36,7 +37,7 @@ export class UserService{
         return mapToResponseDto(user);
     }
 
-    async loginUser(loginDto: LoginDto): Promise<ResponseDto> {
+    async loginUser(loginDto: LoginDto): Promise<AuthResponseDto> {
         if(!loginDto.email) {
             throw new Error("Validation failed: Please provide email.");
         }
@@ -54,7 +55,13 @@ export class UserService{
             throw new Error("Authentication failed: Invalid email or password.");
         }
 
-        return mapToResponseDto(user);
+        const secretKey = process.env.JWT_SECRET;
+        if (!secretKey) {
+            throw new Error("FATAL ERROR: JWT_SECRET is not defined in environment variables.");
+        }
+        const token = jwt.sign({ id: user.id, email: user.email }, secretKey, { expiresIn: '1h' });
+
+        return { token, user: mapToResponseDto(user) };
     }
 
     async updateUser(userId: number, updateDto: UpdateDto) : Promise<void> {

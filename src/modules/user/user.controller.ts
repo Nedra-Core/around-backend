@@ -36,8 +36,8 @@ export class UserController {
 
     loginUser = asyncHandler(async (req: Request, res: Response) => {
         const loginDto = mapToLoginDto(req.body);
-        const user = await userService.loginUser(loginDto);
-        res.status(200).json(user);
+        const authData = await userService.loginUser(loginDto);
+        res.status(200).json(authData);
     });
 
     updateUser = asyncHandler(async (req: Request, res: Response) => {

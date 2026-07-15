@@ -26,3 +26,8 @@ export type LoginDto = {
     email: string;
     password: string;
 }
+
+export type AuthResponseDto = {
+    token: string;
+    user: ResponseDto;
+}
