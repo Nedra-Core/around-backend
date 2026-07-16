@@ -13,29 +13,6 @@ const isStrongPassword = (password: any): boolean => {
     return typeof password === 'string' && password.length >= 6 && password.length <= 255;
 };
 
-export const validateRegisterData = (data: any): void => {
-    if (!data || Object.keys(data).length === 0) {
-        throw new ValidationError("Request body is empty.");
-    }
-
-    if (!isValidString(data.username, 3)) {
-        throw new ValidationError("Username must be a string and at least 3 characters long.");
-    }
-
-    if (!isValidEmail(data.email)) {
-        throw new ValidationError("Please provide a valid email format.");
-    }
-
-    if (!isStrongPassword(data.password)) {
-        throw new ValidationError("Password must be at least 6 characters long.");
-    }
-
-    if (!isValidString(data.firstName, 2) || !isValidString(data.lastName, 2)) {
-        throw new ValidationError("First and last names are required and must be at least 2 characters.");
-    }
-
-};
-
 export const validateLoginData = (data: any): void => {
     if (!data || Object.keys(data).length === 0) {
         throw new ValidationError("Request body is empty.");

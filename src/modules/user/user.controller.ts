@@ -3,8 +3,10 @@ import { Request, Response } from "express";
 import { userService } from "../../container";
 import { mapToLoginDto, mapToRegisterDto, mapToUpdateDto } from "./user.mapper";
 import { asyncHandler } from "../../middlewares/async-handler";
-import { validateLoginData, validateRegisterData, validateUpdateData } from "./user.validator";
+import { validateLoginData, validateUpdateData } from "./user.validator";
 import { authGuard, AuthRequest } from "../../middlewares/auth";
+import { registerSchema } from "./user.dto";
+import { validate } from "../../middlewares/validateResource";
 
 export class UserController {
     public router: Router;
@@ -16,7 +18,7 @@ export class UserController {
 
     private initializeRoutes() {
         this.router.get('/', authGuard, this.getUsers);
-        this.router.post('/', this.registerUser);
+        this.router.post('/', validate(registerSchema), this.registerUser);
         this.router.post('/login', this.loginUser);
         this.router.put('/:id', authGuard, this.updateUser);
         this.router.delete('/:id', authGuard, this.deleteUser);
@@ -30,8 +32,6 @@ export class UserController {
     });
 
     registerUser = asyncHandler(async (req: Request, res: Response) => {
-
-        validateRegisterData(req.body);
 
         const registerDto = mapToRegisterDto(req.body);
         const newUser = await userService.registerUser(registerDto);
