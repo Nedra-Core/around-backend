@@ -1,15 +1,5 @@
 import { RegisterDto, UpdateDto, ResponseDto, LoginDto } from "./user.dto";
 
-export const mapToRegisterDto = (data: any): RegisterDto => {
-    return {
-        username: data.username,
-        email: data.email,
-        password: data.password,
-        firstName: data.firstName,
-        lastName: data.lastName
-    };
-};
-
 export const mapToUpdateDto = (data: any): UpdateDto => {
     const dto: UpdateDto = {};
     if (data.username !== undefined) dto.username = data.username;

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Request, Response } from "express";
 import { userService } from "../../container";
-import { mapToLoginDto, mapToRegisterDto, mapToUpdateDto } from "./user.mapper";
+import { mapToLoginDto, mapToUpdateDto } from "./user.mapper";
 import { asyncHandler } from "../../middlewares/async-handler";
 import { validateLoginData, validateUpdateData } from "./user.validator";
 import { authGuard, AuthRequest } from "../../middlewares/auth";
@@ -33,7 +33,7 @@ export class UserController {
 
     registerUser = asyncHandler(async (req: Request, res: Response) => {
 
-        const registerDto = mapToRegisterDto(req.body);
+        const registerDto = req.body;
         const newUser = await userService.registerUser(registerDto);
         res.status(201).json(newUser);
     });
