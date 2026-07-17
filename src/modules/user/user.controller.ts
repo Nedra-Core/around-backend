@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { Request, Response } from "express";
 import { userService } from "../../container";
-import { asyncHandler } from "../../middlewares/async-handler";
+import { asyncHandler } from "../../middlewares/async.handler";
 import { authGuard, AuthRequest } from "../../middlewares/auth";
 import { registerSchema, updateSchema, loginSchema } from "./user.dto";
-import { validate } from "../../middlewares/validateResource";
+import { validate } from "../../middlewares/resource.validator";
 
 export class UserController {
     public router: Router;
