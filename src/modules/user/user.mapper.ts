@@ -1,14 +1,5 @@
 import { RegisterDto, UpdateDto, ResponseDto, LoginDto } from "./user.dto";
 
-export const mapToUpdateDto = (data: any): UpdateDto => {
-    const dto: UpdateDto = {};
-    if (data.username !== undefined) dto.username = data.username;
-    if (data.password !== undefined) dto.password = data.password;
-    if (data.firstName !== undefined) dto.firstName = data.firstName;
-    if (data.lastName !== undefined) dto.lastName = data.lastName;
-    return dto;
-};
-
 export const mapToResponseDto = (data: any): ResponseDto => {
     return {
         id: data.id,

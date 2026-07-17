@@ -10,12 +10,11 @@ export const registerSchema = z.object({
 
 export type RegisterDto = z.infer<typeof registerSchema>;
 
-export type UpdateDto = {
-    username?: string;
-    password?: string;
-    firstName?: string;
-    lastName?: string;
-}
+export const updateSchema = registerSchema.omit({ email: true }).partial().strict().refine(data => Object.keys(data).length > 0, {
+    message: "Please provide at least one valid field to update (username, password, firstName, lastName).",
+});
+
+export type UpdateDto = z.infer<typeof updateSchema>;
 
 export type ResponseDto = {
     id: number;

@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { Request, Response } from "express";
 import { userService } from "../../container";
-import { mapToLoginDto, mapToUpdateDto } from "./user.mapper";
+import { mapToLoginDto } from "./user.mapper";
 import { asyncHandler } from "../../middlewares/async-handler";
-import { validateLoginData, validateUpdateData } from "./user.validator";
+import { validateLoginData } from "./user.validator";
 import { authGuard, AuthRequest } from "../../middlewares/auth";
-import { registerSchema } from "./user.dto";
+import { registerSchema, updateSchema } from "./user.dto";
 import { validate } from "../../middlewares/validateResource";
 
 export class UserController {
@@ -20,7 +20,7 @@ export class UserController {
         this.router.get('/', authGuard, this.getUsers);
         this.router.post('/', validate(registerSchema), this.registerUser);
         this.router.post('/login', this.loginUser);
-        this.router.put('/:id', authGuard, this.updateUser);
+        this.router.put('/:id', authGuard, validate(updateSchema), this.updateUser);
         this.router.delete('/:id', authGuard, this.deleteUser);
     }
 
@@ -49,11 +49,9 @@ export class UserController {
 
     updateUser = asyncHandler(async (req: AuthRequest, res: Response) => {
 
-        validateUpdateData(req.body);
-
         const targetUserId = Number(req.params.id);
         const authUserId = req.auth?.id;
-        const updateDto = mapToUpdateDto(req.body);
+        const updateDto = req.body;
         await userService.updateUser(authUserId, targetUserId, updateDto);
         res.status(200).json({ message: "User updated successfully" });
 

@@ -24,25 +24,3 @@ export const validateLoginData = (data: any): void => {
         throw new ValidationError("Password is required.");
     }
 };
-
-export const validateUpdateData = (data: any): void => {
-    if (!data || Object.keys(data).length === 0) {
-        throw new ValidationError("Request body is empty.");
-    }
-
-    if(!data.username && !data.password && !data.firstName && !data.lastName) {
-            throw new ValidationError("Please provide at least one valid field to update (username, password, firstName, lastName).");
-        }
-
-    if (data.firstName !== undefined && !isValidString(data.firstName, 2)) {
-        throw new ValidationError("First name must be at least 2 characters.");
-    }
-
-    if (data.lastName !== undefined && !isValidString(data.lastName, 2)) {
-        throw new ValidationError("Last name must be at least 2 characters.");
-    }
-
-    if (data.password !== undefined && !isStrongPassword(data.password)) {
-        throw new ValidationError("New password must be at least 6 characters.");
-    }
-};
