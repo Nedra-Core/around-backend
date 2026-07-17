@@ -1,4 +1,4 @@
-import { RegisterDto, UpdateDto, ResponseDto, LoginDto } from "./user.dto";
+import {ResponseDto} from "./user.dto";
 
 export const mapToResponseDto = (data: any): ResponseDto => {
     return {
@@ -8,12 +8,5 @@ export const mapToResponseDto = (data: any): ResponseDto => {
         firstName: data.firstName,
         lastName: data.lastName,
         isDriver: data.isDriver
-    };
-};
-
-export const mapToLoginDto = (data: any): LoginDto => {
-    return {
-        email: data.email,
-        password: data.password
     };
 };

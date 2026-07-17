@@ -16,6 +16,13 @@ export const updateSchema = registerSchema.omit({ email: true }).partial().stric
 
 export type UpdateDto = z.infer<typeof updateSchema>;
 
+export const loginSchema = z.object({
+    email: z.string("Email as a string is required").trim().pipe(z.email("Please provide a valid email format")),
+    password: z.string("Password as a string is required").min(1, "Please provide a password."),
+});
+
+export type LoginDto = z.infer<typeof loginSchema>;
+
 export type ResponseDto = {
     id: number;
     username: string;
@@ -23,11 +30,6 @@ export type ResponseDto = {
     firstName: string;
     lastName: string;
     isDriver: boolean;
-}
-
-export type LoginDto = {
-    email: string;
-    password: string;
 }
 
 export type AuthResponseDto = {
