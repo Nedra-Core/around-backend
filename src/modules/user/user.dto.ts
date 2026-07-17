@@ -29,7 +29,6 @@ export type ResponseDto = {
     email: string;
     firstName: string;
     lastName: string;
-    isDriver: boolean;
 }
 
 export type AuthResponseDto = {

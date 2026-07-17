@@ -7,6 +7,5 @@ export const mapToResponseDto = (data: any): ResponseDto => {
         email: data.email,
         firstName: data.firstName,
         lastName: data.lastName,
-        isDriver: data.isDriver
     };
 };
