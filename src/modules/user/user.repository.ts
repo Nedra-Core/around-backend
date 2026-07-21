@@ -1,9 +1,13 @@
-import { AppDataSource } from "../../config/database";
+import { DataSource, Repository } from "typeorm";
 import { RegisterDto, UpdateDto } from "./user.dto";
 import { User} from "./user.entity";
 
 export class UserRepository {
-    private userRepository = AppDataSource.getRepository(User);
+    private userRepository: Repository<User>;
+
+    constructor(private dataSource: DataSource) {
+        this.userRepository = this.dataSource.getRepository(User);
+    }
 
     async findByEmail(email: string): Promise<User | null> {
         return this.userRepository.findOne({ where: { email, isDeleted: false } });

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { Request, Response } from "express";
-import { userService } from "../../container";
+import { UserService } from "./user.service";
 import { asyncHandler } from "../../middlewares/async.handler";
 import { authGuard, AuthRequest } from "../../middlewares/auth";
 import { registerSchema, updateSchema, loginSchema } from "./user.dto";
@@ -9,7 +9,7 @@ import { validate } from "../../middlewares/resource.validator";
 export class UserController {
     public router: Router;
 
-    constructor() {
+    constructor( private userService: UserService) {
         this.router = Router();
         this.initializeRoutes();
     }
@@ -24,7 +24,7 @@ export class UserController {
 
     getUsers = asyncHandler(async (req: Request, res: Response) => {
 
-        const users = await userService.getAllUsers();
+        const users = await this.userService.getAllUsers();
         res.json(users);
 
     });
@@ -32,14 +32,14 @@ export class UserController {
     registerUser = asyncHandler(async (req: Request, res: Response) => {
 
         const registerDto = req.body;
-        const newUser = await userService.registerUser(registerDto);
+        const newUser = await this.userService.registerUser(registerDto);
         res.status(201).json(newUser);
     });
 
     loginUser = asyncHandler(async (req: Request, res: Response) => {
 
         const loginDto = req.body;
-        const authData = await userService.loginUser(loginDto);
+        const authData = await this.userService.loginUser(loginDto);
         res.status(200).json(authData);
     });
 
@@ -48,7 +48,7 @@ export class UserController {
         const targetUserId = Number(req.params.id);
         const authUserId = req.auth?.id;
         const updateDto = req.body;
-        await userService.updateUser(authUserId, targetUserId, updateDto);
+        await this.userService.updateUser(authUserId, targetUserId, updateDto);
         res.status(200).json({ message: "User updated successfully" });
 
     });
@@ -57,7 +57,7 @@ export class UserController {
 
         const targetUserId = Number(req.params.id);
         const authUserId = req.auth?.id;
-        await userService.deleteUser(authUserId, targetUserId);
+        await this.userService.deleteUser(authUserId, targetUserId);
         res.status(200).json({ message: "User deleted successfully" });
 
     });

@@ -1,4 +1,4 @@
-import {userRepository} from "../../container";
+import {UserRepository} from "./user.repository";
 import { ConflictError, UnauthorizedError } from "../../exceptions/custom.errors";
 import { AuthJwtPayload } from "../../middlewares/auth";
 import { RegisterDto, UpdateDto, ResponseDto, LoginDto, AuthResponseDto } from "./user.dto";
@@ -8,20 +8,22 @@ import jwt from "jsonwebtoken";
 
 export class UserService{
 
+    constructor(private userRepository: UserRepository) {}
+
     async getAllUsers() : Promise<ResponseDto[]> {
-        const users = await userRepository.findAll();
+        const users = await this.userRepository.findAll();
         const responseDtos: ResponseDto[] = users.map(user => mapToResponseDto(user));
         return responseDtos;
     }
 
     async registerUser(registerDto: RegisterDto) : Promise<AuthResponseDto> {
 
-        const existingUserByEmail = await userRepository.findByEmail(registerDto.email);
+        const existingUserByEmail = await this.userRepository.findByEmail(registerDto.email);
         if (existingUserByEmail) {
             throw new ConflictError("Email already exists.");
         }
 
-        const existingUserByUsername = await userRepository.findByUsername(registerDto.username);
+        const existingUserByUsername = await this.userRepository.findByUsername(registerDto.username);
         if (existingUserByUsername) {
             throw new ConflictError("Username already exists.");
         }
@@ -29,7 +31,7 @@ export class UserService{
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(registerDto.password, saltRounds);
 
-        const user = await userRepository.createUser({ ...registerDto, password: hashedPassword });
+        const user = await this.userRepository.createUser({ ...registerDto, password: hashedPassword });
         const responseDto = mapToResponseDto(user);
 
         const token = this.generateToken(user.id, user.email);
@@ -40,7 +42,7 @@ export class UserService{
 
     async loginUser(loginDto: LoginDto): Promise<AuthResponseDto> {
        
-        const user = await userRepository.findByEmail(loginDto.email);
+        const user = await this.userRepository.findByEmail(loginDto.email);
         if (!user) {
             throw new UnauthorizedError("Invalid email or password.");
         }
@@ -67,14 +69,14 @@ export class UserService{
             updateDto.password = hashedPassword;
         }
 
-        await userRepository.updateUser(targetUserId, updateDto);
+        await this.userRepository.updateUser(targetUserId, updateDto);
     }
 
     async deleteUser(authUserId: number | undefined, targetUserId: number) : Promise<void> {
         if (authUserId !== targetUserId) {
             throw new UnauthorizedError("You are not authorized to delete this user.");
         }
-        await userRepository.deleteUser(targetUserId);
+        await this.userRepository.deleteUser(targetUserId);
     }
 
     private generateToken(id: number, email: string): string {
