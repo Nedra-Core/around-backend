@@ -13,6 +13,11 @@ export interface AuthRequest extends Request {
 }
 
 export const authGuard = (req: AuthRequest, res: Response, next: NextFunction): void => {
+    const secretKey = process.env.JWT_SECRET;
+        if (!secretKey) {
+            return next(new Error("FATAL ERROR: JWT_SECRET is not defined in environment variables."));
+        }
+    
     try {
         const authHeader = req.headers.authorization;
 
@@ -22,10 +27,6 @@ export const authGuard = (req: AuthRequest, res: Response, next: NextFunction): 
 
         const token = authHeader.split(" ")[1];
 
-        const secretKey = process.env.JWT_SECRET;
-        if (!secretKey) {
-            throw new Error("FATAL ERROR: JWT_SECRET is not defined in environment variables.");
-        }
         const decoded = jwt.verify(token, secretKey) as AuthJwtPayload;
 
         req.auth = decoded;
