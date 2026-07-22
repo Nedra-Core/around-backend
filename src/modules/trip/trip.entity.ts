@@ -16,4 +16,7 @@ export class Trip {
 
     @Column({ name: 'start_time', type: 'timestamp' })
     startTime!: Date;
+
+  @Column({ default: false })
+  isDeleted!: boolean;
 }

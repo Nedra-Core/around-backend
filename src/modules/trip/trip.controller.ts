@@ -19,6 +19,7 @@ export class TripController {
         this.router.get('/', authGuard, this.getTrips);
         this.router.post('/', authGuard, validate(createTripSchema), this.createTrip);
         this.router.put('/:id', authGuard, validate(updateTripSchema), this.updateTrip);
+        this.router.delete('/:id', authGuard, this.deleteTrip);
     }
 
     getTrips = asyncHandler(async (req: Request, res: Response) => {
@@ -40,5 +41,12 @@ export class TripController {
         const updateDto = req.body;
         await this.tripService.updateTrip(authUserId, targetTripId, updateDto);
         res.status(200).json({ message: "Trip updated successfully" });
+    })
+
+    deleteTrip = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const targetTripId = Number(req.params.id);
+        const authUserId = req.auth!.id;
+        await this.tripService.deleteTrip(authUserId, targetTripId);
+        res.status(200).json({ message: "Trip deleted successfully" });
     })
 }

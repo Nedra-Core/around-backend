@@ -11,11 +11,11 @@ export class TripRepository {
     }
     
     async findAllTrips(): Promise<Trip[]> {
-        return this.tripRepository.find();
+        return this.tripRepository.find( { where: { isDeleted: false } });
     }
     
     async findTripById(id: number): Promise<Trip | null> {
-        return this.tripRepository.findOne({ where: { id } });
+        return this.tripRepository.findOne({ where: { id, isDeleted: false } });
     }
     
       async createTrip(authUserId: number, trip: CreateTripDto) : Promise<Trip> {
@@ -28,6 +28,10 @@ export class TripRepository {
 
     async updateTrip(targetTripId: number, updateDto: UpdateTripDto): Promise<void> {
         await this.tripRepository.update(targetTripId, updateDto);
+    }
+
+    async deleteTrip(targetTripId: number): Promise<void> {
+        await this.tripRepository.update(targetTripId, { isDeleted: true });
     }
 
 }

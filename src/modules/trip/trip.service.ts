@@ -24,4 +24,15 @@ export class TripService {
         }
         await this.tripRepository.updateTrip(targetTripId, updateDto);
     }
+
+    async deleteTrip(authUserId: number, targetTripId: number): Promise<void> {
+        const trip = await this.tripRepository.findTripById(targetTripId);
+        if (!trip) {
+            throw new NotFoundError("Trip not found");
+        }
+        if (authUserId !== trip.driverId) {
+            throw new UnauthorizedError("Unauthorized to delete this trip");
+        }
+        await this.tripRepository.deleteTrip(targetTripId);
+    }
 }
