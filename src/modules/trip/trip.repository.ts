@@ -1,12 +1,21 @@
-import { AppDataSource } from "../../config/database";
+import { DataSource, Repository } from "typeorm";
+import { CreateTripDto } from "./trip.dto";
 import { Trip } from "./trip.entity";
 
 
 export class TripRepository {
-    private tripRepository = AppDataSource.getRepository(Trip);
+    private tripRepository: Repository<Trip>;
 
-  async createTrip(trip: Trip) : Promise<Trip> {
-    return this.tripRepository.save(trip);
+    constructor(private dataSource: DataSource) {
+        this.tripRepository = this.dataSource.getRepository(Trip);
+    }
+
+  async createTrip(authUserId: number, trip: CreateTripDto) : Promise<Trip> {
+    const newTrip = this.tripRepository.create({
+      ...trip,
+        driverId: authUserId,
+    });
+    return this.tripRepository.save(newTrip);
   }
 
 }

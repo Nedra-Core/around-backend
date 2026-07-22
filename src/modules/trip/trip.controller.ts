@@ -1,25 +1,28 @@
-import { tripService } from '../../container';
+import { TripService } from './trip.service';
 import { Request, Response } from 'express';
 import { Router } from 'express';
-import { authGuard } from '../../middlewares/auth';
+import { authGuard, AuthRequest } from '../../middlewares/auth';
 import { asyncHandler } from '../../middlewares/async.handler';
+import { CreateTripSchema } from './trip.dto';
+import { validate } from '../../middlewares/resource.validator';
 
 export class TripController {
 
     public router: Router;
 
-    constructor() {
+    constructor( private tripService: TripService) {
         this.router = Router();
         this.initializeRoutes();
     }
 
     private initializeRoutes() {
-        this.router.post('/', authGuard, this.createTrip);
+        this.router.post('/', authGuard, validate(CreateTripSchema), this.createTrip);
     }
 
-  createTrip = asyncHandler(async (req: Request, res: Response) => {
+  createTrip = asyncHandler(async (req: AuthRequest, res: Response) => {
     const tripData = req.body;
-    const newTrip = await tripService.createTrip(tripData);
+    const authUserId = req.auth!.id;
+    const newTrip = await this.tripService.createTrip(authUserId, tripData);
     res.status(201).json(newTrip);
   })
 }
