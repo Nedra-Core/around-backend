@@ -1,7 +1,7 @@
 import express, { Application } from 'express';
 import cors from 'cors';
-import userRouter from './modules/user';
 import { errorHandler} from './middlewares/error.handler';
+import { userController } from './container';
 
 const app: Application = express();
 
@@ -16,7 +16,7 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
-app.use('/api/users', userRouter);
+app.use('/api/users', userController.router );
 app.use(errorHandler);
 
 export default app;
