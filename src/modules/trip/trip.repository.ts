@@ -18,4 +18,8 @@ export class TripRepository {
     return this.tripRepository.save(newTrip);
   }
 
+    async findAllTrips(): Promise<Trip[]> {
+        return this.tripRepository.find();
+    }
+
 }

@@ -17,6 +17,7 @@ export class TripController {
 
     private initializeRoutes() {
         this.router.post('/', authGuard, validate(CreateTripSchema), this.createTrip);
+        this.router.get('/', authGuard, this.getTrips);
     }
 
   createTrip = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -24,5 +25,10 @@ export class TripController {
     const authUserId = req.auth!.id;
     const newTrip = await this.tripService.createTrip(authUserId, tripData);
     res.status(201).json(newTrip);
+  })
+
+  getTrips = asyncHandler(async (req: Request, res: Response) => {
+    const trips = await this.tripService.getAllTrips();
+    res.status(200).json(trips);
   })
 }
