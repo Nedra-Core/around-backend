@@ -1,5 +1,5 @@
 import { DataSource, Repository } from "typeorm";
-import { CreateTripDto } from "./trip.dto";
+import { CreateTripDto, UpdateTripDto } from "./trip.dto";
 import { Trip } from "./trip.entity";
 
 
@@ -9,17 +9,25 @@ export class TripRepository {
     constructor(private dataSource: DataSource) {
         this.tripRepository = this.dataSource.getRepository(Trip);
     }
-
-  async createTrip(authUserId: number, trip: CreateTripDto) : Promise<Trip> {
-    const newTrip = this.tripRepository.create({
-      ...trip,
-        driverId: authUserId,
-    });
-    return this.tripRepository.save(newTrip);
-  }
-
+    
     async findAllTrips(): Promise<Trip[]> {
         return this.tripRepository.find();
+    }
+    
+    async findTripById(id: number): Promise<Trip | null> {
+        return this.tripRepository.findOne({ where: { id } });
+    }
+    
+      async createTrip(authUserId: number, trip: CreateTripDto) : Promise<Trip> {
+        const newTrip = this.tripRepository.create({
+          ...trip,
+            driverId: authUserId,
+        });
+        return this.tripRepository.save(newTrip);
+      }
+
+    async updateTrip(targetTripId: number, updateDto: UpdateTripDto): Promise<void> {
+        await this.tripRepository.update(targetTripId, updateDto);
     }
 
 }
