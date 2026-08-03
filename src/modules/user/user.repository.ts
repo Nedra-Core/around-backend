@@ -10,15 +10,15 @@ export class UserRepository {
     }
 
     async findByEmail(email: string): Promise<User | null> {
-        return this.userRepository.findOne({ where: { email, isDeleted: false } });
+        return this.userRepository.findOne({ where: { email} });
     }
 
     async findByUsername(username: string): Promise<User | null> {
-        return this.userRepository.findOne({ where: { username, isDeleted: false } });
+        return this.userRepository.findOne({ where: { username} });
     }
 
     async findAll(): Promise<User[]> {
-        return this.userRepository.find({where: { isDeleted: false }});
+        return this.userRepository.find();
     }
 
     async createUser(registerDto: RegisterDto): Promise<User> {
@@ -26,12 +26,14 @@ export class UserRepository {
         return this.userRepository.save(user);
     }
 
-    async updateUser(userId: number, updateDto: UpdateDto) : Promise<void> {
-        await this.userRepository.update(userId, updateDto);
+    async updateUser(userId: number, updateDto: UpdateDto) : Promise<boolean> {
+        const result = await this.userRepository.update(userId, updateDto);
+        return result.affected !== undefined && result.affected > 0;
     }
 
-    async deleteUser(userId: number) : Promise<void> {
-        await this.userRepository.update(userId, { isDeleted: true });
+    async deleteUser(userId: number) : Promise<boolean> {
+        const result = await this.userRepository.softDelete(userId);
+        return result.affected !== undefined && result.affected > 0;
     }
 
 }

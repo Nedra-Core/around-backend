@@ -1,5 +1,5 @@
 import {UserRepository} from "./user.repository";
-import { ConflictError, UnauthorizedError } from "../../exceptions/custom.errors";
+import { ConflictError, NotFoundError, UnauthorizedError } from "../../exceptions/custom.errors";
 import { AuthJwtPayload } from "../../middlewares/auth";
 import { RegisterDto, UpdateDto, ResponseDto, LoginDto, AuthResponseDto } from "./user.dto";
 import { mapToResponseDto } from "./user.mapper";
@@ -57,7 +57,7 @@ export class UserService{
         return { token, user: mapToResponseDto(user) };
     }
 
-    async updateUser(authUserId: number | undefined, targetUserId: number, updateDto: UpdateDto) : Promise<void> {
+    async updateUser(authUserId: number, targetUserId: number, updateDto: UpdateDto) : Promise<void> {
 
         if (authUserId !== targetUserId) {
             throw new UnauthorizedError("You are not authorized to update this user.");
@@ -69,14 +69,20 @@ export class UserService{
             updateDto.password = hashedPassword;
         }
 
-        await this.userRepository.updateUser(targetUserId, updateDto);
+        const isUpdated = await this.userRepository.updateUser(targetUserId, updateDto);
+        if (!isUpdated) {
+            throw new NotFoundError("User not found.");
+        }
     }
 
-    async deleteUser(authUserId: number | undefined, targetUserId: number) : Promise<void> {
+    async deleteUser(authUserId: number, targetUserId: number) : Promise<void> {
         if (authUserId !== targetUserId) {
             throw new UnauthorizedError("You are not authorized to delete this user.");
         }
-        await this.userRepository.deleteUser(targetUserId);
+         const isDeleted = await this.userRepository.deleteUser(targetUserId);
+         if (!isDeleted) {
+             throw new NotFoundError("User not found.");
+         }
     }
 
     private generateToken(id: number, email: string): string {

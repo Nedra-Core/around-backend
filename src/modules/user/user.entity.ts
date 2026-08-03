@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
 @Entity({ name: 'users' })
 export class User {
@@ -8,18 +8,24 @@ export class User {
   @Column({ unique: true })
   username!: string;
 
-  @Column({unique: true})
+  @Column({ unique: true })
   email!: string;
 
   @Column()
   password!: string;
 
-  @Column({name: 'first_name'})
+  @Column({ name: 'first_name' })
   firstName!: string;
 
-  @Column({name: 'last_name'})
+  @Column({ name: 'last_name' })
   lastName!: string;
 
-  @Column({default: false})
-  isDeleted!: boolean;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updatedAt!: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
+  deletedAt!: Date | null;
 }
