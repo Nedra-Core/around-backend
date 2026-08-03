@@ -22,7 +22,11 @@ export class TripService {
         if (authUserId !== trip.driverId) {
             throw new UnauthorizedError("Unauthorized to update this trip");
         }
-        await this.tripRepository.updateTrip(targetTripId, updateDto);
+
+        const isUpdated = await this.tripRepository.updateTrip(targetTripId, updateDto);
+        if (!isUpdated) {
+            throw new NotFoundError("Failed to update trip");
+        }
     }
 
     async deleteTrip(authUserId: number, targetTripId: number): Promise<void> {
@@ -33,6 +37,9 @@ export class TripService {
         if (authUserId !== trip.driverId) {
             throw new UnauthorizedError("Unauthorized to delete this trip");
         }
-        await this.tripRepository.deleteTrip(targetTripId);
+        const isDeleted = await this.tripRepository.deleteTrip(targetTripId);
+        if (!isDeleted) {
+            throw new NotFoundError("Failed to delete trip");
+        }
     }
 }
