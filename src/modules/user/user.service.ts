@@ -18,6 +18,11 @@ export class UserService{
 
     async registerUser(registerDto: RegisterDto) : Promise<AuthResponseDto> {
 
+        const deletedUser = await this.userRepository.findDeletedByEmail(registerDto.email);
+        if (deletedUser) {
+            throw new ConflictError("This email was previously used by a deleted account. Please contact support to recover your account.");
+        }
+
         const existingUserByEmail = await this.userRepository.findByEmail(registerDto.email);
         if (existingUserByEmail) {
             throw new ConflictError("Email already exists.");

@@ -13,6 +13,10 @@ export class UserRepository {
         return this.userRepository.findOne({ where: { email} });
     }
 
+    async findDeletedByEmail(email: string): Promise<User | null> {
+        return this.userRepository.findOne({ where: { email}, withDeleted: true });
+    }
+
     async findByUsername(username: string): Promise<User | null> {
         return this.userRepository.findOne({ where: { username} });
     }
