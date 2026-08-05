@@ -10,6 +10,14 @@ export class TripService {
         return this.tripRepository.findAllTrips();
     }
 
+    async getTripById(id: number): Promise<Trip> {
+        const trip = await this.tripRepository.findTripById(id);
+        if (!trip) {
+            throw new NotFoundError("Trip not found");
+        }
+        return trip;
+    }
+
     async createTrip(authUserId: number, tripData: CreateTripDto): Promise<Trip> {
         return this.tripRepository.createTrip(authUserId, tripData);
     }

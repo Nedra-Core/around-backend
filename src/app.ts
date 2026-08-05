@@ -1,7 +1,7 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import { errorHandler} from './middlewares/error.handler';
-import { userController, tripController } from './container';
+import { userController, tripController, bookingController } from './container';
 
 const app: Application = express();
 
@@ -18,6 +18,7 @@ app.get('/api/health', (req, res) => {
 });
 app.use('/api/users', userController.router );
 app.use('/api/trips', tripController.router );
+app.use('/api/bookings', bookingController.router );
 app.use(errorHandler);
 
 export default app;
