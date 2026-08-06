@@ -14,6 +14,7 @@ export class BookingController {
     private initializeRoutes() {
         this.router.post('/', authGuard, this.createBooking);
         this.router.get('/me', authGuard, this.getMyBookings);
+        this.router.get('/trip/:tripId', authGuard, this.getTripBookings);
 
     }
 
@@ -30,5 +31,14 @@ export class BookingController {
         const bookings = await this.bookingService.getPassengerBookings(passengerId);
         res.status(200).json(bookings);
     });
+
+    getTripBookings = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const authUserId = req.auth!.id;
+        const tripId = Number(req.params.tripId);
+        
+        const bookings = await this.bookingService.getTripBookings(authUserId, tripId);
+        res.status(200).json(bookings);
+    });
+
 
 }

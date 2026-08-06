@@ -20,8 +20,14 @@ export class BookingRepository {
 
     async findByPassengerId(passengerId: number): Promise<Booking[]> {
         return this.bookingRepository.find({
-            where: { passenger: { id: passengerId } },
-            relations: { passenger: true},
+            where: { passenger: { id: passengerId } }
+        });
+    }
+
+    async findByTripId(tripId: number): Promise<Booking[]> {
+        return this.bookingRepository.find({
+            where: { trip: { id: tripId } },
+            relations: { passenger: true },
         });
     }
 

@@ -1,7 +1,7 @@
 import { BookingRepository } from './booking.repository';
 import { TripService } from '../trip/trip.service';
 import { Booking} from './booking.entity';
-import { ConflictError } from '../../exceptions/custom.errors';
+import { ConflictError, UnauthorizedError } from '../../exceptions/custom.errors';
 
 export class BookingService {
     constructor(
@@ -27,4 +27,12 @@ export class BookingService {
         return this.bookingRepository.findByPassengerId(passengerId);
     }
 
+    async getTripBookings(authUserId: number, tripId: number): Promise<Booking[]> {
+        const trip = await this.tripService.getTripById(tripId);
+        if (trip.driverId !== authUserId) {
+            throw new UnauthorizedError("You are not authorized to view bookings for this trip.");
+        }
+
+        return this.bookingRepository.findByTripId(tripId);
+    }
 }
