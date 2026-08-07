@@ -1,5 +1,5 @@
 import { DataSource, Repository } from "typeorm";
-import { Booking } from "./booking.entity";
+import { Booking, BookingStatus } from "./booking.entity";
 
 export class BookingRepository {
     private bookingRepository: Repository<Booking>;
@@ -29,6 +29,18 @@ export class BookingRepository {
             where: { trip: { id: tripId } },
             relations: { passenger: true },
         });
+    }
+
+    async findById(bookingId: number): Promise<Booking | null> {
+        return this.bookingRepository.findOne({
+            where: { id: bookingId },
+            relations: { trip: true, passenger: true },
+        });
+    }
+
+    async updateStatus(bookingId: number, status: BookingStatus): Promise<boolean> {
+        const result = await this.bookingRepository.update(bookingId, { status });
+        return (result.affected !== undefined && result.affected > 0);
     }
 
 }

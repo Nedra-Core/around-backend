@@ -15,6 +15,7 @@ export class BookingController {
         this.router.post('/', authGuard, this.createBooking);
         this.router.get('/me', authGuard, this.getMyBookings);
         this.router.get('/trip/:tripId', authGuard, this.getTripBookings);
+        this.router.patch('/:id/status', authGuard, this.updateStatus);
 
     }
 
@@ -40,5 +41,13 @@ export class BookingController {
         res.status(200).json(bookings);
     });
 
+    updateStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const authUserId = req.auth!.id;
+        const bookingId = Number(req.params.id);
+        const { status } = req.body;
+
+        await this.bookingService.updateBookingStatus(authUserId, bookingId, status);
+        res.status(200).json({ message: `Booking successfully marked as ${status}` });
+    });
 
 }
