@@ -10,9 +10,9 @@ export class BookingRepository {
 
     async createBooking(passengerId: number, tripId: number, seats: number): Promise<Booking> {
         const booking = this.bookingRepository.create({
-            passenger: { id: passengerId }, 
-            trip: { id: tripId },
-            seats: seats,
+            passengerId,
+            tripId,
+            seats
         });
         return this.bookingRepository.save(booking);
     }
@@ -20,13 +20,14 @@ export class BookingRepository {
 
     async findByPassengerId(passengerId: number): Promise<Booking[]> {
         return this.bookingRepository.find({
-            where: { passenger: { id: passengerId } }
+            where: { passengerId },
+            relations: { trip: true },
         });
     }
 
     async findByTripId(tripId: number): Promise<Booking[]> {
         return this.bookingRepository.find({
-            where: { trip: { id: tripId } },
+            where: { tripId },
             relations: { passenger: true },
         });
     }

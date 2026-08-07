@@ -14,9 +14,15 @@ export class Booking {
     @PrimaryGeneratedColumn()
     id!: number;
 
+    @Column({ name: 'passenger_id' })
+    passengerId!: number;
+
     @ManyToOne(() => User)
     @JoinColumn({ name: 'passenger_id' })
     passenger!: User;
+
+    @Column({ name: 'trip_id' })
+    tripId!: number;
 
     @ManyToOne(() => Trip)
     @JoinColumn({ name: 'trip_id' })
