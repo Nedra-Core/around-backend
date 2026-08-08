@@ -23,6 +23,14 @@ export const loginSchema = z.object({
 
 export type LoginDto = z.infer<typeof loginSchema>;
 
+export const publicUserResponseSchema = z.object({
+    id: z.number(),
+    firstName: z.string(),
+    lastName: z.string()
+});
+
+export type PublicUserResponseDto = z.infer<typeof publicUserResponseSchema>;
+
 export type ResponseDto = {
     id: number;
     username: string;

@@ -15,3 +15,13 @@ export const updateTripSchema = createTripSchema.partial().strict().refine(data 
 });
 
 export type UpdateTripDto = z.infer<typeof updateTripSchema>;
+
+export const publicTripResponseSchema = z.object({
+    id: z.number(),
+    startLocation: z.string(),
+    endLocation: z.string(),
+    startTime: z.date(),
+    price: z.coerce.number()
+});
+
+export type PublicTripResponseDto = z.infer<typeof publicTripResponseSchema>;
