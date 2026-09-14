@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { BookingService } from './booking.service';
 import { authGuard, AuthRequest } from '../../middlewares/auth';
 import { asyncHandler } from '../../middlewares/async.handler';
+import { validate } from '../../middlewares/resource.validator';
+import { CreateBookingDto, createBookingSchema, UpdateBookingStatusDto, updateBookingStatusSchema } from './booking.dto';
 
 export class BookingController {
     public router: Router;
@@ -12,18 +14,17 @@ export class BookingController {
     }
 
     private initializeRoutes() {
-        this.router.post('/', authGuard, this.createBooking);
+        this.router.post('/', authGuard, validate(createBookingSchema), this.createBooking);
         this.router.get('/me', authGuard, this.getMyBookings);
         this.router.get('/trip/:tripId', authGuard, this.getTripBookings);
-        this.router.patch('/:id/status', authGuard, this.updateStatus);
-
+        this.router.patch('/:id/status', authGuard, validate(updateBookingStatusSchema), this.updateStatus);
     }
 
     createBooking = asyncHandler(async (req: AuthRequest, res: Response) => {
         const passengerId = req.auth!.id;
-        const { tripId, seats } = req.body; 
+        const createBookingDto = req.body as CreateBookingDto;
         
-        const booking = await this.bookingService.createBooking(passengerId, tripId, seats);
+        const booking = await this.bookingService.createBooking(passengerId, createBookingDto);
         res.status(201).json(booking);
     });
 
@@ -44,10 +45,10 @@ export class BookingController {
     updateStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
         const authUserId = req.auth!.id;
         const bookingId = Number(req.params.id);
-        const { status } = req.body;
+        const updateDto = req.body as UpdateBookingStatusDto;
 
-        await this.bookingService.updateBookingStatus(authUserId, bookingId, status);
-        res.status(200).json({ message: `Booking successfully marked as ${status}` });
+        await this.bookingService.updateBookingStatus(authUserId, bookingId, updateDto);
+        res.status(200).json({ message: `Booking successfully marked as ${updateDto.status}` });
     });
 
 }

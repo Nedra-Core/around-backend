@@ -2,6 +2,8 @@ import { BookingRepository } from './booking.repository';
 import { TripService } from '../trip/trip.service';
 import { Booking, BookingStatus} from './booking.entity';
 import { ConflictError, UnauthorizedError } from '../../exceptions/custom.errors';
+import { BookingResponseDto, CreateBookingDto, PassengerBookingResponseDto, DriverBookingResponseDto, UpdateBookingStatusDto } from './booking.dto';
+import { mapToBookingResponseDto, mapToPassengerBookingDto, mapToDriverBookingDto} from './booking.mapper';
 
 export class BookingService {
     constructor(
@@ -9,34 +11,41 @@ export class BookingService {
         private tripService: TripService
     ) {}
 
-    async createBooking(passengerId: number, tripId: number, seats: number): Promise<Booking> {
-        const trip = await this.tripService.getTripById(tripId);
+    async createBooking(passengerId: number, createBookingDto: CreateBookingDto): Promise<BookingResponseDto> {
+        const trip = await this.tripService.getTripById(createBookingDto.tripId);
 
         if (trip.driverId === passengerId) {
             throw new ConflictError("You cannot book your own trip.");
         }
 
-        if (trip.availableSeats < seats) {
+        if (trip.availableSeats < createBookingDto.seats) {
             throw new ConflictError(`Not enough seats. Only ${trip.availableSeats} available.`);
         }
 
-        return this.bookingRepository.createBooking(passengerId, tripId, seats);
+        const booking = await this.bookingRepository.createBooking(passengerId, createBookingDto);
+
+        return mapToBookingResponseDto(booking);
+
+
     }
 
-    async getPassengerBookings(passengerId: number): Promise<Booking[]> {
-        return this.bookingRepository.findByPassengerId(passengerId);
+    async getPassengerBookings(passengerId: number): Promise<PassengerBookingResponseDto[]> {
+        const bookings = await this.bookingRepository.findByPassengerId(passengerId);
+        return bookings.map(mapToPassengerBookingDto);
     }
 
-    async getTripBookings(authUserId: number, tripId: number): Promise<Booking[]> {
+    async getTripBookings(authUserId: number, tripId: number): Promise<DriverBookingResponseDto[]> {
         const trip = await this.tripService.getTripById(tripId);
         if (trip.driverId !== authUserId) {
             throw new UnauthorizedError("You are not authorized to view bookings for this trip.");
         }
 
-        return this.bookingRepository.findByTripId(tripId);
+        const bookings = await this.bookingRepository.findByTripId(tripId);
+        return bookings.map(mapToDriverBookingDto);
     }
 
-    async updateBookingStatus(authUserId: number, bookingId: number, newStatus: BookingStatus): Promise<void> {
+    async updateBookingStatus(authUserId: number, bookingId: number, updateDto: UpdateBookingStatusDto): Promise<void> {
+        const newStatus = updateDto.status;
     const booking = await this.bookingRepository.findById(bookingId);
     if (!booking) {
         throw new Error("Booking not found"); 
@@ -52,7 +61,7 @@ export class BookingService {
     if (isPassenger && newStatus !== BookingStatus.CANCELLED) {
         throw new UnauthorizedError("Passengers can only cancel their own bookings.");
     }
-    
+
     if (booking.status === BookingStatus.CANCELLED || booking.status === BookingStatus.REJECTED) {
         throw new ConflictError("Cannot change the status of a booking that is already cancelled or rejected.");
     }

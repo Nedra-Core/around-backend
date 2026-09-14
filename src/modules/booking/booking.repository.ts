@@ -1,5 +1,6 @@
 import { DataSource, Repository } from "typeorm";
 import { Booking, BookingStatus } from "./booking.entity";
+import { CreateBookingDto } from "./booking.dto";
 
 export class BookingRepository {
     private bookingRepository: Repository<Booking>;
@@ -8,11 +9,11 @@ export class BookingRepository {
         this.bookingRepository = this.dataSource.getRepository(Booking);
     }
 
-    async createBooking(passengerId: number, tripId: number, seats: number): Promise<Booking> {
+    async createBooking(passengerId: number, createBookingDto: CreateBookingDto): Promise<Booking> {
         const booking = this.bookingRepository.create({
             passengerId,
-            tripId,
-            seats
+            tripId: createBookingDto.tripId,
+            seats: createBookingDto.seats
         });
         return this.bookingRepository.save(booking);
     }
