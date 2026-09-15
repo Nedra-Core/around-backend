@@ -1,7 +1,7 @@
 import { BookingRepository } from './booking.repository';
 import { TripService } from '../trip/trip.service';
-import { Booking, BookingStatus} from './booking.entity';
-import { ConflictError, UnauthorizedError } from '../../exceptions/custom.errors';
+import { BookingStatus} from './booking.entity';
+import { ConflictError, NotFoundError, UnauthorizedError } from '../../exceptions/custom.errors';
 import { BookingResponseDto, CreateBookingDto, PassengerBookingResponseDto, DriverBookingResponseDto, UpdateBookingStatusDto } from './booking.dto';
 import { mapToBookingResponseDto, mapToPassengerBookingDto, mapToDriverBookingDto} from './booking.mapper';
 
@@ -25,8 +25,6 @@ export class BookingService {
         const booking = await this.bookingRepository.createBooking(passengerId, createBookingDto);
 
         return mapToBookingResponseDto(booking);
-
-
     }
 
     async getPassengerBookings(passengerId: number): Promise<PassengerBookingResponseDto[]> {
@@ -48,7 +46,7 @@ export class BookingService {
         const newStatus = updateDto.status;
     const booking = await this.bookingRepository.findById(bookingId);
     if (!booking) {
-        throw new Error("Booking not found"); 
+        throw new NotFoundError("Booking not found"); 
     }
 
     const isDriver = booking.trip.driverId === authUserId;

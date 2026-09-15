@@ -10,9 +10,15 @@ export const createTripSchema = z.object({
 
 export type CreateTripDto = z.infer<typeof createTripSchema>;
 
-export const updateTripSchema = createTripSchema.partial().strict().refine(data => Object.keys(data).length > 0, {
-    message: "Please provide at least one valid field to update (startLocation, endLocation, startTime).",
-});
+export const updateTripSchema = createTripSchema
+    .partial()
+    .extend({
+        availableSeats: z.number("Available seats must be a number").int("Available seats must be an integer").min(0, "Available seats cannot be negative").max(10, "Available seats must be at most 10").optional(),
+    })
+    .strict()
+    .refine(data => Object.keys(data).length > 0, {
+        message: "Please provide at least one valid field to update (startLocation, endLocation, startTime).",
+    });
 
 export type UpdateTripDto = z.infer<typeof updateTripSchema>;
 
