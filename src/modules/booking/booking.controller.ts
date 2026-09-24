@@ -36,15 +36,15 @@ export class BookingController {
 
     getTripBookings = asyncHandler(async (req: AuthRequest, res: Response) => {
         const authUserId = req.auth!.id;
-        const tripId = Number(req.params.tripId);
-        
+        const { tripId } = req.params as unknown as { tripId: number };
+
         const bookings = await this.bookingService.getTripBookings(authUserId, tripId);
         res.status(200).json(bookings);
     });
 
     updateStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
         const authUserId = req.auth!.id;
-        const bookingId = Number(req.params.id);
+        const { id: bookingId } = req.params as unknown as { id: number };
         const updateDto = req.body as UpdateBookingStatusDto;
 
         await this.bookingService.updateBookingStatus(authUserId, bookingId, updateDto);

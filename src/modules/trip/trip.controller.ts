@@ -37,7 +37,7 @@ export class TripController {
 
 
     updateTrip = asyncHandler(async (req: AuthRequest, res: Response) => {
-        const targetTripId = Number(req.params.id);
+        const { id: targetTripId } = req.params as unknown as { id: number };
         const authUserId = req.auth!.id;
         const updateDto = req.body;
         await this.tripService.updateTrip(authUserId, targetTripId, updateDto);
@@ -45,7 +45,7 @@ export class TripController {
     })
 
     deleteTrip = asyncHandler(async (req: AuthRequest, res: Response) => {
-        const targetTripId = Number(req.params.id);
+        const { id: targetTripId } = req.params as unknown as { id: number };
         const authUserId = req.auth!.id;
         await this.tripService.deleteTrip(authUserId, targetTripId);
         res.status(200).json({ message: "Trip deleted successfully" });

@@ -45,7 +45,7 @@ export class UserController {
 
     updateUser = asyncHandler(async (req: AuthRequest, res: Response) => {
 
-        const targetUserId = Number(req.params.id);
+        const { id: targetUserId } = req.params as unknown as { id: number };
         const authUserId = req.auth!.id;
         const updateDto = req.body;
         await this.userService.updateUser(authUserId, targetUserId, updateDto);
@@ -55,7 +55,7 @@ export class UserController {
 
     deleteUser = asyncHandler(async (req: AuthRequest, res: Response) => {
 
-        const targetUserId = Number(req.params.id);
+        const { id: targetUserId } = req.params as unknown as { id: number };
         const authUserId = req.auth!.id;
         await this.userService.deleteUser(authUserId, targetUserId);
         res.status(200).json({ message: "User deleted successfully" });
