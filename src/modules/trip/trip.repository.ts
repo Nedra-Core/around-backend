@@ -1,5 +1,5 @@
 import { DataSource, Repository } from "typeorm";
-import { CreateTripDto, UpdateTripDto } from "./trip.dto";
+import { CreateTripDto, SearchTripsDto, UpdateTripDto } from "./trip.dto";
 import { Trip } from "./trip.entity";
 
 
@@ -9,11 +9,34 @@ export class TripRepository {
     constructor(private dataSource: DataSource) {
         this.tripRepository = this.dataSource.getRepository(Trip);
     }
-    
-    async findAllTrips(): Promise<Trip[]> {
-        return this.tripRepository.find();
+
+    async searchTrips(filters: SearchTripsDto): Promise<Trip[]> {
+        const query = this.tripRepository.createQueryBuilder('trip')
+            .where('trip.startTime > :now', { now: new Date() });
+
+        if (filters.startLocation) {
+            query.andWhere('trip.startLocation ILIKE :startLocation', { startLocation: `%${filters.startLocation}%` });
+        }
+
+        if (filters.endLocation) {
+            query.andWhere('trip.endLocation ILIKE :endLocation', { endLocation: `%${filters.endLocation}%` });
+        }
+
+        if (filters.date) {
+            const startOfDay = new Date(filters.date);
+            startOfDay.setUTCHours(0, 0, 0, 0);
+            const endOfDay = new Date(startOfDay);
+            endOfDay.setUTCDate(endOfDay.getUTCDate() + 1);
+            query.andWhere('trip.startTime >= :startOfDay AND trip.startTime < :endOfDay', { startOfDay, endOfDay });
+        }
+
+        if (filters.seats) {
+            query.andWhere('trip.availableSeats >= :seats', { seats: filters.seats });
+        }
+
+        return query.orderBy('trip.startTime', 'ASC').getMany();
     }
-    
+
     async findTripById(id: number): Promise<Trip | null> {
         return this.tripRepository.findOne({ where: { id } });
     }

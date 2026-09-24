@@ -22,6 +22,15 @@ export const updateTripSchema = createTripSchema
 
 export type UpdateTripDto = z.infer<typeof updateTripSchema>;
 
+export const searchTripsSchema = z.object({
+    startLocation: z.string().trim().min(1, "Start location must not be empty").max(255, "Start location must be at most 255 characters long.").optional(),
+    endLocation: z.string().trim().min(1, "End location must not be empty").max(255, "End location must be at most 255 characters long.").optional(),
+    date: z.coerce.date("Date must be a valid date").optional(),
+    seats: z.coerce.number("Seats must be a number").int("Seats must be an integer").positive("Seats must be a positive number").max(10, "Seats must be at most 10").optional(),
+});
+
+export type SearchTripsDto = z.infer<typeof searchTripsSchema>;
+
 export const publicTripResponseSchema = z.object({
     id: z.number(),
     startLocation: z.string(),

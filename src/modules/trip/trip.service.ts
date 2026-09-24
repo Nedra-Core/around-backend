@@ -1,13 +1,13 @@
 import { TripRepository } from './trip.repository';
-import { CreateTripDto, UpdateTripDto } from './trip.dto';
+import { CreateTripDto, SearchTripsDto, UpdateTripDto } from './trip.dto';
 import { Trip } from './trip.entity';
 import { NotFoundError, UnauthorizedError } from '../../exceptions/custom.errors';
 
 export class TripService {
     constructor(private tripRepository: TripRepository) { }
 
-    async getAllTrips(): Promise<Trip[]> {
-        return this.tripRepository.findAllTrips();
+    async searchTrips(filters: SearchTripsDto): Promise<Trip[]> {
+        return this.tripRepository.searchTrips(filters);
     }
 
     async getTripById(id: number): Promise<Trip> {
