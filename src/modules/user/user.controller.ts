@@ -4,7 +4,7 @@ import { UserService } from "./user.service";
 import { asyncHandler } from "../../middlewares/async.handler";
 import { authGuard, AuthRequest } from "../../middlewares/auth";
 import { registerSchema, updateSchema, loginSchema } from "./user.dto";
-import { validate } from "../../middlewares/resource.validator";
+import { idParamSchema, validate } from "../../middlewares/resource.validator";
 
 export class UserController {
     public router: Router;
@@ -18,8 +18,8 @@ export class UserController {
         this.router.get('/', authGuard, this.getUsers);
         this.router.post('/', validate(registerSchema), this.registerUser);
         this.router.post('/login', validate(loginSchema), this.loginUser);
-        this.router.put('/:id', authGuard, validate(updateSchema), this.updateUser);
-        this.router.delete('/:id', authGuard, this.deleteUser);
+        this.router.put('/:id', authGuard, validate(idParamSchema(), 'params'), validate(updateSchema), this.updateUser);
+        this.router.delete('/:id', authGuard, validate(idParamSchema(), 'params'), this.deleteUser);
     }
 
     getUsers = asyncHandler(async (req: Request, res: Response) => {

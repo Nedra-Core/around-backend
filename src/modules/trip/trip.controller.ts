@@ -4,7 +4,7 @@ import { Router } from 'express';
 import { authGuard, AuthRequest } from '../../middlewares/auth';
 import { asyncHandler } from '../../middlewares/async.handler';
 import { createTripSchema, SearchTripsDto, searchTripsSchema, updateTripSchema } from './trip.dto';
-import { validate } from '../../middlewares/resource.validator';
+import { idParamSchema, validate } from '../../middlewares/resource.validator';
 
 export class TripController {
 
@@ -18,8 +18,8 @@ export class TripController {
     private initializeRoutes() {
         this.router.get('/', authGuard, validate(searchTripsSchema, 'query'), this.getTrips);
         this.router.post('/', authGuard, validate(createTripSchema), this.createTrip);
-        this.router.put('/:id', authGuard, validate(updateTripSchema), this.updateTrip);
-        this.router.delete('/:id', authGuard, this.deleteTrip);
+        this.router.put('/:id', authGuard, validate(idParamSchema(), 'params'), validate(updateTripSchema), this.updateTrip);
+        this.router.delete('/:id', authGuard, validate(idParamSchema(), 'params'), this.deleteTrip);
     }
 
     getTrips = asyncHandler(async (req: Request, res: Response) => {

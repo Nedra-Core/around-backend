@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { BookingService } from './booking.service';
 import { authGuard, AuthRequest } from '../../middlewares/auth';
 import { asyncHandler } from '../../middlewares/async.handler';
-import { validate } from '../../middlewares/resource.validator';
+import { idParamSchema, validate } from '../../middlewares/resource.validator';
 import { CreateBookingDto, createBookingSchema, UpdateBookingStatusDto, updateBookingStatusSchema } from './booking.dto';
 
 export class BookingController {
@@ -16,8 +16,8 @@ export class BookingController {
     private initializeRoutes() {
         this.router.post('/', authGuard, validate(createBookingSchema), this.createBooking);
         this.router.get('/me', authGuard, this.getMyBookings);
-        this.router.get('/trip/:tripId', authGuard, this.getTripBookings);
-        this.router.patch('/:id/status', authGuard, validate(updateBookingStatusSchema), this.updateStatus);
+        this.router.get('/trip/:tripId', authGuard, validate(idParamSchema('tripId'), 'params'), this.getTripBookings);
+        this.router.patch('/:id/status', authGuard, validate(idParamSchema(), 'params'), validate(updateBookingStatusSchema), this.updateStatus);
     }
 
     createBooking = asyncHandler(async (req: AuthRequest, res: Response) => {
