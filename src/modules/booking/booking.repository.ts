@@ -1,6 +1,8 @@
-import { DataSource, Repository } from "typeorm";
+import { DataSource, MoreThanOrEqual, Repository } from "typeorm";
 import { Booking, BookingStatus } from "./booking.entity";
+import { Trip } from "../trip/trip.entity";
 import { CreateBookingDto } from "./booking.dto";
+import { ConflictError } from "../../exceptions/custom.errors";
 
 export class BookingRepository {
     private bookingRepository: Repository<Booking>;
@@ -40,9 +42,28 @@ export class BookingRepository {
         });
     }
 
-    async updateStatus(bookingId: number, status: BookingStatus): Promise<boolean> {
-        const result = await this.bookingRepository.update(bookingId, { status });
-        return (result.affected !== undefined && result.affected > 0);
+    async updateStatusWithSeats(booking: Booking, newStatus: BookingStatus, seatDifference: number): Promise<void> {
+        await this.dataSource.transaction(async (manager) => {
+            const statusResult = await manager.update(Booking,
+                { id: booking.id, status: booking.status },
+                { status: newStatus }
+            );
+            if (!statusResult.affected) {
+                throw new ConflictError("The booking status was changed by another request. Please refresh and try again.");
+            }
+
+            if (seatDifference < 0) {
+                const seatsResult = await manager.decrement(Trip,
+                    { id: booking.tripId, availableSeats: MoreThanOrEqual(-seatDifference) },
+                    'availableSeats', -seatDifference
+                );
+                if (!seatsResult.affected) {
+                    throw new ConflictError("Not enough available seats to approve this booking.");
+                }
+            } else if (seatDifference > 0) {
+                await manager.increment(Trip, { id: booking.tripId }, 'availableSeats', seatDifference);
+            }
+        });
     }
 
 }

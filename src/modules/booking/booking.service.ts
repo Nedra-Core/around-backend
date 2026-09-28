@@ -44,56 +44,44 @@ export class BookingService {
 
     async updateBookingStatus(authUserId: number, bookingId: number, updateDto: UpdateBookingStatusDto): Promise<void> {
         const newStatus = updateDto.status;
-    const booking = await this.bookingRepository.findById(bookingId);
-    if (!booking) {
-        throw new NotFoundError("Booking not found"); 
-    }
-
-    const isDriver = booking.trip.driverId === authUserId;
-    const isPassenger = booking.passenger.id === authUserId;
-
-    if (!isDriver && !isPassenger) {
-        throw new UnauthorizedError("You are not authorized to update this booking.");
-    }
-
-    if (isPassenger && newStatus !== BookingStatus.CANCELLED) {
-        throw new UnauthorizedError("Passengers can only cancel their own bookings.");
-    }
-
-    if (booking.status === BookingStatus.CANCELLED || booking.status === BookingStatus.REJECTED) {
-        throw new ConflictError("Cannot change the status of a booking that is already cancelled or rejected.");
-    }
-
-    if (isDriver && newStatus === BookingStatus.CANCELLED) {
-        throw new UnauthorizedError("Drivers should use REJECTED to decline a booking, not CANCELLED.");
-    }
-
-    if (booking.status === newStatus) {
-        return; 
-    }
-
-    let seatDifference = 0;
-
-    if (newStatus === BookingStatus.APPROVED && booking.status !== BookingStatus.APPROVED) {
-        seatDifference = -booking.seats;
-    } 
-    else if (booking.status === BookingStatus.APPROVED && 
-            (newStatus === BookingStatus.CANCELLED || newStatus === BookingStatus.REJECTED)) {
-        seatDifference = booking.seats;
-    }
-
-    if (seatDifference !== 0) {
-        const newAvailableSeats = booking.trip.availableSeats + seatDifference;
-        
-        if (newAvailableSeats < 0) {
-            throw new ConflictError("Not enough available seats to approve this booking.");
+        const booking = await this.bookingRepository.findById(bookingId);
+        if (!booking) {
+            throw new NotFoundError("Booking not found");
         }
 
-        await this.tripService.updateTrip(booking.trip.driverId, booking.trip.id, {
-            availableSeats: newAvailableSeats
-        });
-    }
+        const isDriver = booking.trip.driverId === authUserId;
+        const isPassenger = booking.passenger.id === authUserId;
 
-    await this.bookingRepository.updateStatus(bookingId, newStatus);
-}
+        if (!isDriver && !isPassenger) {
+            throw new UnauthorizedError("You are not authorized to update this booking.");
+        }
+
+        if (isPassenger && newStatus !== BookingStatus.CANCELLED) {
+            throw new UnauthorizedError("Passengers can only cancel their own bookings.");
+        }
+
+        if (booking.status === BookingStatus.CANCELLED || booking.status === BookingStatus.REJECTED) {
+            throw new ConflictError("Cannot change the status of a booking that is already cancelled or rejected.");
+        }
+
+        if (isDriver && newStatus === BookingStatus.CANCELLED) {
+            throw new UnauthorizedError("Drivers should use REJECTED to decline a booking, not CANCELLED.");
+        }
+
+        if (booking.status === newStatus) {
+            return;
+        }
+
+        let seatDifference = 0;
+
+        if (newStatus === BookingStatus.APPROVED && booking.status !== BookingStatus.APPROVED) {
+            seatDifference = -booking.seats;
+        }
+        else if (booking.status === BookingStatus.APPROVED &&
+            (newStatus === BookingStatus.CANCELLED || newStatus === BookingStatus.REJECTED)) {
+            seatDifference = booking.seats;
+        }
+
+        await this.bookingRepository.updateStatusWithSeats(booking, newStatus, seatDifference);
+    }
 }
