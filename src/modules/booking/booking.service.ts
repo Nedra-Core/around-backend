@@ -22,6 +22,10 @@ export class BookingService {
             throw new ConflictError(`Not enough seats. Only ${trip.availableSeats} available.`);
         }
 
+        if (trip.startTime <= new Date()) {
+            throw new ConflictError("Cannot book a trip that has already started.");
+        }
+
         const booking = await this.bookingRepository.createBooking(passengerId, createBookingDto);
 
         return mapToBookingResponseDto(booking);

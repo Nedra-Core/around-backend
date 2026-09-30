@@ -15,7 +15,7 @@ const makeTrip = (overrides: Partial<Trip> = {}): Trip => ({
     driverId: DRIVER_ID,
     startLocation: 'Sofia',
     endLocation: 'Plovdiv',
-    startTime: new Date('2026-10-20T10:00:00Z'),
+    startTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
     availableSeats: 3,
     price: 15,
     createdAt: new Date(),
@@ -67,7 +67,15 @@ describe('BookingService', () => {
             tripService.getTripById.mockResolvedValue(makeTrip());
 
             await expect(service.createBooking(DRIVER_ID, { tripId: 10, seats: 1 }))
-                .rejects.toThrow(ConflictError);
+                .rejects.toThrow('You cannot book your own trip.');
+            expect(bookingRepository.createBooking).not.toHaveBeenCalled();
+        });
+
+        it('rejects booking a trip that has already started', async () => {
+            tripService.getTripById.mockResolvedValue(makeTrip({ startTime: new Date(Date.now() - 1000) }));
+
+            await expect(service.createBooking(PASSENGER_ID, { tripId: 10, seats: 1 }))
+                .rejects.toThrow('Cannot book a trip that has already started.');
             expect(bookingRepository.createBooking).not.toHaveBeenCalled();
         });
 
@@ -75,7 +83,7 @@ describe('BookingService', () => {
             tripService.getTripById.mockResolvedValue(makeTrip({ availableSeats: 1 }));
 
             await expect(service.createBooking(PASSENGER_ID, { tripId: 10, seats: 2 }))
-                .rejects.toThrow(ConflictError);
+                .rejects.toThrow('Not enough seats. Only 1 available.');
             expect(bookingRepository.createBooking).not.toHaveBeenCalled();
         });
 
