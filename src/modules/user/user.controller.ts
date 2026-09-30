@@ -15,18 +15,26 @@ export class UserController {
     }
 
     private initializeRoutes() {
-        this.router.get('/', authGuard, this.getUsers);
+        this.router.get('/me', authGuard, this.getMe);
+        this.router.get('/:id', authGuard, validate(idParamSchema(), 'params'), this.getPublicProfile);
         this.router.post('/', validate(registerSchema), this.registerUser);
         this.router.post('/login', validate(loginSchema), this.loginUser);
         this.router.put('/:id', authGuard, validate(idParamSchema(), 'params'), validate(updateSchema), this.updateUser);
         this.router.delete('/:id', authGuard, validate(idParamSchema(), 'params'), this.deleteUser);
     }
 
-    getUsers = asyncHandler(async (req: Request, res: Response) => {
+    getMe = asyncHandler(async (req: AuthRequest, res: Response) => {
 
-        const users = await this.userService.getAllUsers();
-        res.json(users);
+        const myId = req.auth!.id;
+        const user = await this.userService.getMyProfile(myId);
+        res.status(200).json(user);
+    });
 
+    getPublicProfile = asyncHandler(async (req: Request, res: Response) => {
+
+        const { id: targetUserId } = req.params as unknown as { id: number };
+        const user = await this.userService.getPublicProfile(targetUserId);
+        res.status(200).json(user);
     });
 
     registerUser = asyncHandler(async (req: Request, res: Response) => {

@@ -23,21 +23,19 @@ export const loginSchema = z.object({
 
 export type LoginDto = z.infer<typeof loginSchema>;
 
-export const publicUserResponseSchema = z.object({
+export const responseDtoSchema = z.object({
     id: z.number(),
+    username: z.string(),
+    email: z.string(),
     firstName: z.string(),
     lastName: z.string()
 });
 
-export type PublicUserResponseDto = z.infer<typeof publicUserResponseSchema>;
+export type ResponseDto = z.infer<typeof responseDtoSchema>;
 
-export type ResponseDto = {
-    id: number;
-    username: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-}
+export const publicUserResponseSchema = responseDtoSchema.omit({ email: true });
+
+export type PublicUserResponseDto = z.infer<typeof publicUserResponseSchema>;
 
 export type AuthResponseDto = {
     token: string;

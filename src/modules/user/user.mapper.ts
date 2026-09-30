@@ -1,11 +1,9 @@
-import {ResponseDto} from "./user.dto";
+import {PublicUserResponseDto, ResponseDto, responseDtoSchema, publicUserResponseSchema} from "./user.dto";
 
 export const mapToResponseDto = (data: any): ResponseDto => {
-    return {
-        id: data.id,
-        username: data.username,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-    };
+    return responseDtoSchema.parse(data);
 };
+
+export const mapToPublicUserResponseDto = (data: any): PublicUserResponseDto => {
+    return publicUserResponseSchema.parse(data);
+}

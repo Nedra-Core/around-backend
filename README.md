@@ -98,7 +98,8 @@ All endpoints are under `/api`. Endpoints marked 🔒 require an `Authorization:
 |---|---|---|
 | `POST` | `/users` | Register. Returns a token and the user. |
 | `POST` | `/users/login` | Log in. Returns a token and the user. |
-| `GET` | `/users` 🔒 | List users |
+| `GET` | `/users/me` 🔒 | Get your own profile, including your email |
+| `GET` | `/users/:id` 🔒 | Get a user's public profile (no email) |
 | `PUT` | `/users/:id` 🔒 | Update your own profile |
 | `DELETE` | `/users/:id` 🔒 | Delete your own account (soft delete) |
 

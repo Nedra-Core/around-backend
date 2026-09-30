@@ -1,8 +1,8 @@
 import {UserRepository} from "./user.repository";
 import { ConflictError, NotFoundError, UnauthorizedError } from "../../exceptions/custom.errors";
 import { AuthJwtPayload } from "../../middlewares/auth";
-import { RegisterDto, UpdateDto, ResponseDto, LoginDto, AuthResponseDto } from "./user.dto";
-import { mapToResponseDto } from "./user.mapper";
+import { RegisterDto, UpdateDto, ResponseDto, LoginDto, AuthResponseDto, PublicUserResponseDto } from "./user.dto";
+import { mapToResponseDto, mapToPublicUserResponseDto } from "./user.mapper";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -10,10 +10,20 @@ export class UserService{
 
     constructor(private userRepository: UserRepository) {}
 
-    async getAllUsers() : Promise<ResponseDto[]> {
-        const users = await this.userRepository.findAll();
-        const responseDtos: ResponseDto[] = users.map(user => mapToResponseDto(user));
-        return responseDtos;
+    async getMyProfile(id: number) : Promise<ResponseDto> {
+        const user = await this.userRepository.findById(id);
+        if (!user) {
+            throw new NotFoundError("User not found.");
+        }
+        return mapToResponseDto(user);
+    }
+
+    async getPublicProfile(id: number) : Promise<PublicUserResponseDto> {
+        const user = await this.userRepository.findById(id);
+        if (!user) {
+            throw new NotFoundError("User not found.");
+        }
+        return mapToPublicUserResponseDto(user);
     }
 
     async registerUser(registerDto: RegisterDto) : Promise<AuthResponseDto> {

@@ -32,7 +32,7 @@ const makeUser = (overrides: Partial<User> = {}): User => ({
 
 describe('UserService', () => {
     let userRepository: {
-        findAll: ReturnType<typeof vi.fn>;
+        findById: ReturnType<typeof vi.fn>;
         findByEmail: ReturnType<typeof vi.fn>;
         findByUsername: ReturnType<typeof vi.fn>;
         findDeletedByEmail: ReturnType<typeof vi.fn>;
@@ -45,7 +45,7 @@ describe('UserService', () => {
     beforeEach(() => {
         vi.stubEnv('JWT_SECRET', JWT_SECRET);
         userRepository = {
-            findAll: vi.fn(),
+            findById: vi.fn().mockResolvedValue(null),
             findByEmail: vi.fn().mockResolvedValue(null),
             findByUsername: vi.fn().mockResolvedValue(null),
             findDeletedByEmail: vi.fn().mockResolvedValue(null),
@@ -60,14 +60,45 @@ describe('UserService', () => {
         vi.unstubAllEnvs();
     });
 
-    describe('getAllUsers', () => {
-        it('returns users without their passwords', async () => {
-            userRepository.findAll.mockResolvedValue([makeUser(), makeUser({ id: 2, username: 'ivan' })]);
+    describe('getMyProfile', () => {
+        it('returns the user without their password', async () => {
+            userRepository.findById.mockResolvedValue(makeUser());
 
-            const result = await service.getAllUsers();
+            const result = await service.getMyProfile(1);
 
-            expect(result).toHaveLength(2);
-            result.forEach(user => expect(user).not.toHaveProperty('password'));
+            expect(result).toEqual({
+                id: 1,
+                username: 'maria',
+                email: 'maria@example.com',
+                firstName: 'Maria',
+                lastName: 'Ivanova',
+            });
+            expect(result).not.toHaveProperty('password');
+        });
+
+        it('throws NotFoundError when the user does not exist', async () => {
+            await expect(service.getMyProfile(1)).rejects.toThrow(NotFoundError);
+        });
+    });
+
+    describe('getPublicProfile', () => {
+        it('returns the user without their email or password', async () => {
+            userRepository.findById.mockResolvedValue(makeUser());
+
+            const result = await service.getPublicProfile(1);
+
+            expect(result).toEqual({
+                id: 1,
+                username: 'maria',
+                firstName: 'Maria',
+                lastName: 'Ivanova',
+            });
+            expect(result).not.toHaveProperty('email');
+            expect(result).not.toHaveProperty('password');
+        });
+
+        it('throws NotFoundError when the user does not exist', async () => {
+            await expect(service.getPublicProfile(1)).rejects.toThrow(NotFoundError);
         });
     });
 

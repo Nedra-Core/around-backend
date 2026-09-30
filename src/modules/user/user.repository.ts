@@ -9,6 +9,10 @@ export class UserRepository {
         this.userRepository = this.dataSource.getRepository(User);
     }
 
+    async findById(id: number): Promise<User | null> {
+        return this.userRepository.findOne({ where: { id } });
+    }
+
     async findByEmail(email: string): Promise<User | null> {
         return this.userRepository.findOne({ where: { email} });
     }
@@ -19,10 +23,6 @@ export class UserRepository {
 
     async findByUsername(username: string): Promise<User | null> {
         return this.userRepository.findOne({ where: { username }, withDeleted: true });
-    }
-
-    async findAll(): Promise<User[]> {
-        return this.userRepository.find();
     }
 
     async createUser(registerDto: RegisterDto): Promise<User> {
