@@ -68,6 +68,13 @@ export class UserService{
             throw new UnauthorizedError("You are not authorized to update this user.");
         }
 
+        if (updateDto.username) {
+            const existingUserByUsername = await this.userRepository.findByUsername(updateDto.username);
+            if (existingUserByUsername && existingUserByUsername.id !== targetUserId) {
+                throw new ConflictError("Username already exists.");
+            }
+        }
+
         if(updateDto.password) {
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(updateDto.password, saltRounds);

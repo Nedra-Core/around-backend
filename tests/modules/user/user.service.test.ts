@@ -156,6 +156,22 @@ describe('UserService', () => {
             expect(userRepository.updateUser).not.toHaveBeenCalled();
         });
 
+        it('rejects a username that belongs to another user', async () => {
+            userRepository.findByUsername.mockResolvedValue(makeUser({ id: 2, username: 'ivan' }));
+
+            await expect(service.updateUser(1, 1, { username: 'ivan' })).rejects.toThrow('Username already exists.');
+            expect(userRepository.updateUser).not.toHaveBeenCalled();
+        });
+
+        it('allows keeping your own username', async () => {
+            userRepository.findByUsername.mockResolvedValue(makeUser({ id: 1, username: 'maria' }));
+            userRepository.updateUser.mockResolvedValue(true);
+
+            await service.updateUser(1, 1, { username: 'maria', firstName: 'Mariya' });
+
+            expect(userRepository.updateUser).toHaveBeenCalledWith(1, { username: 'maria', firstName: 'Mariya' });
+        });
+
         it('hashes a new password before saving it', async () => {
             userRepository.updateUser.mockResolvedValue(true);
 
