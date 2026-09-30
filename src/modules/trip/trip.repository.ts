@@ -1,6 +1,7 @@
-import { DataSource, Repository } from "typeorm";
+import { DataSource, In, Repository } from "typeorm";
 import { CreateTripDto, SearchTripsDto, UpdateTripDto } from "./trip.dto";
 import { Trip } from "./trip.entity";
+import { Booking, BookingStatus } from "../booking/booking.entity";
 
 
 export class TripRepository {
@@ -55,8 +56,18 @@ export class TripRepository {
     }
 
     async deleteTrip(targetTripId: number): Promise<boolean> {
-        const result = await this.tripRepository.softDelete(targetTripId);
-        return result.affected !== undefined && result.affected > 0;
+        return this.dataSource.transaction(async (manager) => {
+            const result = await manager.softDelete(Trip, targetTripId);
+            if (!result.affected) {
+                return false;
+            }
+
+            await manager.update(Booking,
+                { tripId: targetTripId, status: In([BookingStatus.PENDING, BookingStatus.APPROVED]) },
+                { status: BookingStatus.REJECTED }
+            );
+            return true;
+        });
     }
 
 }
