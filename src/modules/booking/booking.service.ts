@@ -18,6 +18,11 @@ export class BookingService {
             throw new ConflictError("You cannot book your own trip.");
         }
 
+        const existingBooking = await this.bookingRepository.findActiveByPassengerIdAndTripId(passengerId, createBookingDto.tripId);
+        if (existingBooking) {
+            throw new ConflictError("You already have an active booking for this trip.");
+        }
+
         if (trip.availableSeats < createBookingDto.seats) {
             throw new ConflictError(`Not enough seats. Only ${trip.availableSeats} available.`);
         }

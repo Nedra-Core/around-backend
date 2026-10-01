@@ -43,6 +43,7 @@ describe('BookingService', () => {
         createBooking: ReturnType<typeof vi.fn>;
         findByTripId: ReturnType<typeof vi.fn>;
         findById: ReturnType<typeof vi.fn>;
+        findActiveByPassengerIdAndTripId: ReturnType<typeof vi.fn>;
         updateStatusWithSeats: ReturnType<typeof vi.fn>;
     };
     let tripService: { getTripById: ReturnType<typeof vi.fn> };
@@ -53,6 +54,7 @@ describe('BookingService', () => {
             createBooking: vi.fn(),
             findByTripId: vi.fn(),
             findById: vi.fn(),
+            findActiveByPassengerIdAndTripId: vi.fn().mockResolvedValue(null),
             updateStatusWithSeats: vi.fn(),
         };
         tripService = { getTripById: vi.fn() };
@@ -68,6 +70,15 @@ describe('BookingService', () => {
 
             await expect(service.createBooking(DRIVER_ID, { tripId: 10, seats: 1 }))
                 .rejects.toThrow('You cannot book your own trip.');
+            expect(bookingRepository.createBooking).not.toHaveBeenCalled();
+        });
+
+        it('rejects booking a trip when you already have an active booking', async () => {
+            tripService.getTripById.mockResolvedValue(makeTrip());
+            bookingRepository.findActiveByPassengerIdAndTripId.mockResolvedValue(makeBooking());
+
+            await expect(service.createBooking(PASSENGER_ID, { tripId: 10, seats: 1 }))
+                .rejects.toThrow('You already have an active booking for this trip.');
             expect(bookingRepository.createBooking).not.toHaveBeenCalled();
         });
 

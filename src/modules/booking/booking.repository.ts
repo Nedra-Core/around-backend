@@ -1,4 +1,4 @@
-import { DataSource, IsNull, MoreThanOrEqual, Repository } from "typeorm";
+import { DataSource, In, IsNull, MoreThanOrEqual, Repository } from "typeorm";
 import { Booking, BookingStatus } from "./booking.entity";
 import { Trip } from "../trip/trip.entity";
 import { CreateBookingDto } from "./booking.dto";
@@ -41,6 +41,17 @@ export class BookingRepository {
             where: { id: bookingId, deletedAt: IsNull() },
             relations: { trip: true, passenger: true },
             withDeleted: true,
+        });
+    }
+
+    async findActiveByPassengerIdAndTripId(passengerId: number, tripId: number): Promise<Booking | null> {
+        return this.bookingRepository.findOne({
+            where: {
+                passengerId,
+                tripId,
+                status: In([BookingStatus.PENDING, BookingStatus.APPROVED]),
+                deletedAt: IsNull()
+            },
         });
     }
 
