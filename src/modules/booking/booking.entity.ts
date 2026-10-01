@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, JoinColumn} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, JoinColumn, Index} from 'typeorm';
 import { User } from '../user/user.entity';
 import { Trip } from '../trip/trip.entity';
 
@@ -9,7 +9,13 @@ export enum BookingStatus {
     CANCELLED = 'cancelled'
 }
 
+export const ACTIVE_BOOKING_UNIQUE_INDEX = 'UQ_bookings_active_passenger_trip';
+
 @Entity({ name: 'bookings' })
+@Index(ACTIVE_BOOKING_UNIQUE_INDEX, ['passengerId', 'tripId'], {
+    unique: true,
+    where: `status IN ('pending', 'approved') AND deleted_at IS NULL`,
+})
 export class Booking {
     @PrimaryGeneratedColumn()
     id!: number;

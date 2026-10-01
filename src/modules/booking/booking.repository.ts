@@ -1,5 +1,5 @@
-import { DataSource, In, IsNull, MoreThanOrEqual, Repository } from "typeorm";
-import { Booking, BookingStatus } from "./booking.entity";
+import { DataSource, In, IsNull, MoreThanOrEqual, QueryFailedError, Repository } from "typeorm";
+import { ACTIVE_BOOKING_UNIQUE_INDEX, Booking, BookingStatus } from "./booking.entity";
 import { Trip } from "../trip/trip.entity";
 import { CreateBookingDto } from "./booking.dto";
 import { ConflictError } from "../../exceptions/custom.errors";
@@ -17,7 +17,14 @@ export class BookingRepository {
             tripId: createBookingDto.tripId,
             seats: createBookingDto.seats
         });
-        return this.bookingRepository.save(booking);
+        try {
+            return await this.bookingRepository.save(booking);
+        } catch (error) {
+            if (error instanceof QueryFailedError && error.driverError.constraint === ACTIVE_BOOKING_UNIQUE_INDEX) {
+                throw new ConflictError("You already have an active booking for this trip.");
+            }
+            throw error;
+        }
     }
 
     async findByPassengerId(passengerId: number): Promise<Booking[]> {
