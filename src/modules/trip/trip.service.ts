@@ -1,7 +1,7 @@
 import { TripRepository } from './trip.repository';
 import { CreateTripDto, SearchTripsDto, UpdateTripDto } from './trip.dto';
 import { Trip } from './trip.entity';
-import { NotFoundError, UnauthorizedError } from '../../exceptions/custom.errors';
+import { ForbiddenError, NotFoundError } from '../../exceptions/custom.errors';
 
 export class TripService {
     constructor(private tripRepository: TripRepository) { }
@@ -28,7 +28,7 @@ export class TripService {
             throw new NotFoundError("Trip not found");
         }
         if (authUserId !== trip.driverId) {
-            throw new UnauthorizedError("Unauthorized to update this trip");
+            throw new ForbiddenError("Unauthorized to update this trip");
         }
 
         const isUpdated = await this.tripRepository.updateTrip(targetTripId, updateDto);
@@ -43,7 +43,7 @@ export class TripService {
             throw new NotFoundError("Trip not found");
         }
         if (authUserId !== trip.driverId) {
-            throw new UnauthorizedError("Unauthorized to delete this trip");
+            throw new ForbiddenError("Unauthorized to delete this trip");
         }
         const isDeleted = await this.tripRepository.deleteTrip(targetTripId);
         if (!isDeleted) {

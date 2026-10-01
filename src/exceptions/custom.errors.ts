@@ -35,3 +35,9 @@ export class NotFoundError extends BaseError {
         super(message, 404, "NOT_FOUND");
     }
 }
+
+export class ForbiddenError extends BaseError {
+    constructor(message: string) {
+        super(message, 403, "FORBIDDEN");
+    }
+}

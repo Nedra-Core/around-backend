@@ -138,7 +138,8 @@ Errors return a JSON body with a machine-readable code and a message:
 | Status | Code | When |
 |---|---|---|
 | 400 | `VALIDATION_ERROR`, `INVALID_JSON` | Invalid request body, params or query |
-| 401 | `UNAUTHORIZED` | Missing or invalid token, or not allowed to do this |
+| 401 | `UNAUTHORIZED` | Missing or invalid token |
+| 403 | `FORBIDDEN` | Not allowed to do this |
 | 404 | `NOT_FOUND` | Resource does not exist |
 | 409 | `CONFLICT_ERROR` | Duplicate email or username, not enough seats, invalid status change |
 | 500 | `INTERNAL_SERVER_ERROR` | Unexpected error |

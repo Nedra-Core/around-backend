@@ -4,7 +4,7 @@ import { BookingRepository } from '../../../src/modules/booking/booking.reposito
 import { TripService } from '../../../src/modules/trip/trip.service';
 import { Booking, BookingStatus } from '../../../src/modules/booking/booking.entity';
 import { Trip } from '../../../src/modules/trip/trip.entity';
-import { ConflictError, NotFoundError, UnauthorizedError } from '../../../src/exceptions/custom.errors';
+import { ConflictError, NotFoundError, ForbiddenError } from '../../../src/exceptions/custom.errors';
 
 const DRIVER_ID = 1;
 const PASSENGER_ID = 2;
@@ -114,7 +114,7 @@ describe('BookingService', () => {
         it('rejects a user who is not the driver', async () => {
             tripService.getTripById.mockResolvedValue(makeTrip());
 
-            await expect(service.getTripBookings(STRANGER_ID, 10)).rejects.toThrow(UnauthorizedError);
+            await expect(service.getTripBookings(STRANGER_ID, 10)).rejects.toThrow(ForbiddenError);
             expect(bookingRepository.findByTripId).not.toHaveBeenCalled();
         });
     });
@@ -131,7 +131,7 @@ describe('BookingService', () => {
             bookingRepository.findById.mockResolvedValue(makeBooking());
 
             await expect(service.updateBookingStatus(STRANGER_ID, 100, { status: BookingStatus.APPROVED }))
-                .rejects.toThrow(UnauthorizedError);
+                .rejects.toThrow(ForbiddenError);
         });
 
         it.each([BookingStatus.APPROVED, BookingStatus.REJECTED])(
@@ -140,7 +140,7 @@ describe('BookingService', () => {
                 bookingRepository.findById.mockResolvedValue(makeBooking());
 
                 await expect(service.updateBookingStatus(PASSENGER_ID, 100, { status }))
-                    .rejects.toThrow(UnauthorizedError);
+                    .rejects.toThrow(ForbiddenError);
             }
         );
 
@@ -148,7 +148,7 @@ describe('BookingService', () => {
             bookingRepository.findById.mockResolvedValue(makeBooking());
 
             await expect(service.updateBookingStatus(DRIVER_ID, 100, { status: BookingStatus.CANCELLED }))
-                .rejects.toThrow(UnauthorizedError);
+                .rejects.toThrow(ForbiddenError);
         });
 
         it.each([BookingStatus.CANCELLED, BookingStatus.REJECTED])(

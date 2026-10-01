@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { UserService } from '../../../src/modules/user/user.service';
 import { UserRepository } from '../../../src/modules/user/user.repository';
 import { User } from '../../../src/modules/user/user.entity';
-import { ConflictError, NotFoundError, UnauthorizedError } from '../../../src/exceptions/custom.errors';
+import { ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from '../../../src/exceptions/custom.errors';
 
 const JWT_SECRET = 'test-secret';
 const PASSWORD = 'secret123';
@@ -183,7 +183,7 @@ describe('UserService', () => {
 
     describe('updateUser', () => {
         it('does not let a user update someone else', async () => {
-            await expect(service.updateUser(1, 2, { firstName: 'Ivan' })).rejects.toThrow(UnauthorizedError);
+            await expect(service.updateUser(1, 2, { firstName: 'Ivan' })).rejects.toThrow(ForbiddenError);
             expect(userRepository.updateUser).not.toHaveBeenCalled();
         });
 
@@ -230,7 +230,7 @@ describe('UserService', () => {
 
     describe('deleteUser', () => {
         it('does not let a user delete someone else', async () => {
-            await expect(service.deleteUser(1, 2)).rejects.toThrow(UnauthorizedError);
+            await expect(service.deleteUser(1, 2)).rejects.toThrow(ForbiddenError);
             expect(userRepository.deleteUser).not.toHaveBeenCalled();
         });
 

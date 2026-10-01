@@ -1,7 +1,7 @@
 import { BookingRepository } from './booking.repository';
 import { TripService } from '../trip/trip.service';
 import { BookingStatus} from './booking.entity';
-import { ConflictError, NotFoundError, UnauthorizedError } from '../../exceptions/custom.errors';
+import { ConflictError, ForbiddenError, NotFoundError } from '../../exceptions/custom.errors';
 import { BookingResponseDto, CreateBookingDto, PassengerBookingResponseDto, DriverBookingResponseDto, UpdateBookingStatusDto } from './booking.dto';
 import { mapToBookingResponseDto, mapToPassengerBookingDto, mapToDriverBookingDto} from './booking.mapper';
 
@@ -44,7 +44,7 @@ export class BookingService {
     async getTripBookings(authUserId: number, tripId: number): Promise<DriverBookingResponseDto[]> {
         const trip = await this.tripService.getTripById(tripId);
         if (trip.driverId !== authUserId) {
-            throw new UnauthorizedError("You are not authorized to view bookings for this trip.");
+            throw new ForbiddenError("You are not authorized to view bookings for this trip.");
         }
 
         const bookings = await this.bookingRepository.findByTripId(tripId);
@@ -62,11 +62,11 @@ export class BookingService {
         const isPassenger = booking.passenger.id === authUserId;
 
         if (!isDriver && !isPassenger) {
-            throw new UnauthorizedError("You are not authorized to update this booking.");
+            throw new ForbiddenError("You are not authorized to update this booking.");
         }
 
         if (isPassenger && newStatus !== BookingStatus.CANCELLED) {
-            throw new UnauthorizedError("Passengers can only cancel their own bookings.");
+            throw new ForbiddenError("Passengers can only cancel their own bookings.");
         }
 
         if (booking.status === BookingStatus.CANCELLED || booking.status === BookingStatus.REJECTED) {
@@ -74,7 +74,7 @@ export class BookingService {
         }
 
         if (isDriver && newStatus === BookingStatus.CANCELLED) {
-            throw new UnauthorizedError("Drivers should use REJECTED to decline a booking, not CANCELLED.");
+            throw new ForbiddenError("Drivers should use REJECTED to decline a booking, not CANCELLED.");
         }
 
         if (booking.status === newStatus) {

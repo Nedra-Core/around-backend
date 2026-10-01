@@ -1,5 +1,5 @@
 import {UserRepository} from "./user.repository";
-import { ConflictError, NotFoundError, UnauthorizedError } from "../../exceptions/custom.errors";
+import { ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from "../../exceptions/custom.errors";
 import { AuthJwtPayload } from "../../middlewares/auth";
 import { RegisterDto, UpdateDto, ResponseDto, LoginDto, AuthResponseDto, PublicUserResponseDto } from "./user.dto";
 import { mapToResponseDto, mapToPublicUserResponseDto } from "./user.mapper";
@@ -75,7 +75,7 @@ export class UserService{
     async updateUser(authUserId: number, targetUserId: number, updateDto: UpdateDto) : Promise<void> {
 
         if (authUserId !== targetUserId) {
-            throw new UnauthorizedError("You are not authorized to update this user.");
+            throw new ForbiddenError("You are not authorized to update this user.");
         }
 
         if (updateDto.username) {
@@ -99,7 +99,7 @@ export class UserService{
 
     async deleteUser(authUserId: number, targetUserId: number) : Promise<void> {
         if (authUserId !== targetUserId) {
-            throw new UnauthorizedError("You are not authorized to delete this user.");
+            throw new ForbiddenError("You are not authorized to delete this user.");
         }
          const isDeleted = await this.userRepository.deleteUser(targetUserId);
          if (!isDeleted) {

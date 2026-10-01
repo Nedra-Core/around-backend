@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TripService } from '../../../src/modules/trip/trip.service';
 import { TripRepository } from '../../../src/modules/trip/trip.repository';
 import { Trip } from '../../../src/modules/trip/trip.entity';
-import { NotFoundError, UnauthorizedError } from '../../../src/exceptions/custom.errors';
+import { NotFoundError, ForbiddenError } from '../../../src/exceptions/custom.errors';
 
 const DRIVER_ID = 1;
 const OTHER_USER_ID = 2;
@@ -100,7 +100,7 @@ describe('TripService', () => {
         it('does not let another user update the trip', async () => {
             tripRepository.findTripById.mockResolvedValue(makeTrip());
 
-            await expect(service.updateTrip(OTHER_USER_ID, 10, { price: 20 })).rejects.toThrow(UnauthorizedError);
+            await expect(service.updateTrip(OTHER_USER_ID, 10, { price: 20 })).rejects.toThrow(ForbiddenError);
             expect(tripRepository.updateTrip).not.toHaveBeenCalled();
         });
 
@@ -132,7 +132,7 @@ describe('TripService', () => {
         it('does not let another user delete the trip', async () => {
             tripRepository.findTripById.mockResolvedValue(makeTrip());
 
-            await expect(service.deleteTrip(OTHER_USER_ID, 10)).rejects.toThrow(UnauthorizedError);
+            await expect(service.deleteTrip(OTHER_USER_ID, 10)).rejects.toThrow(ForbiddenError);
             expect(tripRepository.deleteTrip).not.toHaveBeenCalled();
         });
 
