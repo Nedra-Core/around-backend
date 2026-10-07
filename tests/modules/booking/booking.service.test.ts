@@ -13,6 +13,7 @@ const STRANGER_ID = 3;
 const makeTrip = (overrides: Partial<Trip> = {}): Trip => ({
     id: 10,
     driverId: DRIVER_ID,
+    driver: { id: DRIVER_ID } as Trip['driver'],
     startLocation: 'Sofia',
     endLocation: 'Plovdiv',
     startTime: new Date(Date.now() + 24 * 60 * 60 * 1000),

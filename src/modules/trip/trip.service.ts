@@ -1,13 +1,28 @@
 import { TripRepository } from './trip.repository';
-import { CreateTripDto, SearchTripsDto, UpdateTripDto } from './trip.dto';
+import { CreateTripDto, SearchTripsDto, TripResponseDto, UpdateTripDto } from './trip.dto';
 import { Trip } from './trip.entity';
 import { ForbiddenError, NotFoundError } from '../../exceptions/custom.errors';
+import { mapToTripResponseDto } from './trip.mapper';
 
 export class TripService {
     constructor(private tripRepository: TripRepository) { }
 
-    async searchTrips(filters: SearchTripsDto): Promise<Trip[]> {
-        return this.tripRepository.searchTrips(filters);
+    async searchTrips(filters: SearchTripsDto): Promise<TripResponseDto[]> {
+        const trips = await this.tripRepository.searchTrips(filters);
+        return trips.map(mapToTripResponseDto);
+    }
+
+    async getDriverTrips(authUserId: number): Promise<TripResponseDto[]> {
+        const trips = await this.tripRepository.findTripsByDriver(authUserId);
+        return trips.map(mapToTripResponseDto);
+    }
+
+    async getTripDetailsById(id: number): Promise<TripResponseDto> {
+        const trip = await this.tripRepository.findTripById(id);
+        if (!trip) {
+            throw new NotFoundError("Trip not found");
+        }
+        return mapToTripResponseDto(trip);
     }
 
     async getTripById(id: number): Promise<Trip> {

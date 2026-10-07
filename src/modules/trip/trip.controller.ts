@@ -17,6 +17,8 @@ export class TripController {
 
     private initializeRoutes() {
         this.router.get('/', authGuard, validate(searchTripsSchema, 'query'), this.getTrips);
+        this.router.get('/me', authGuard, this.getMyTrips);
+        this.router.get('/:id', authGuard, validate(idParamSchema(), 'params'), this.getTripById);
         this.router.post('/', authGuard, validate(createTripSchema), this.createTrip);
         this.router.put('/:id', authGuard, validate(idParamSchema(), 'params'), validate(updateTripSchema), this.updateTrip);
         this.router.delete('/:id', authGuard, validate(idParamSchema(), 'params'), this.deleteTrip);
@@ -26,6 +28,18 @@ export class TripController {
         const filters = req.query as unknown as SearchTripsDto;
         const trips = await this.tripService.searchTrips(filters);
         res.status(200).json(trips);
+    })
+
+    getMyTrips = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const authUserId = req.auth!.id;
+        const trips = await this.tripService.getDriverTrips(authUserId);
+        res.status(200).json(trips);
+    })
+
+    getTripById = asyncHandler(async (req: Request, res: Response) => {
+        const { id } = req.params as unknown as { id: number };
+        const trip = await this.tripService.getTripDetailsById(id);
+        res.status(200).json(trip);
     })
 
     createTrip = asyncHandler(async (req: AuthRequest, res: Response) => {

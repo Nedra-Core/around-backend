@@ -2,17 +2,32 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TripService } from '../../../src/modules/trip/trip.service';
 import { TripRepository } from '../../../src/modules/trip/trip.repository';
 import { Trip } from '../../../src/modules/trip/trip.entity';
+import { User } from '../../../src/modules/user/user.entity';
 import { NotFoundError, ForbiddenError } from '../../../src/exceptions/custom.errors';
 
 const DRIVER_ID = 1;
 const OTHER_USER_ID = 2;
+const START_TIME = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+const makeDriver = (): User => ({
+    id: DRIVER_ID,
+    username: 'ivan',
+    email: 'ivan@example.com',
+    password: 'hashed-password',
+    firstName: 'Ivan',
+    lastName: 'Petrov',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+});
 
 const makeTrip = (overrides: Partial<Trip> = {}): Trip => ({
     id: 10,
     driverId: DRIVER_ID,
+    driver: makeDriver(),
     startLocation: 'Sofia',
     endLocation: 'Plovdiv',
-    startTime: new Date('2026-10-20T10:00:00Z'),
+    startTime: START_TIME,
     availableSeats: 3,
     price: 15,
     createdAt: new Date(),
@@ -21,9 +36,20 @@ const makeTrip = (overrides: Partial<Trip> = {}): Trip => ({
     ...overrides,
 });
 
+const expectedTripResponse = {
+    id: 10,
+    startLocation: 'Sofia',
+    endLocation: 'Plovdiv',
+    startTime: START_TIME,
+    price: 15,
+    availableSeats: 3,
+    driver: { id: DRIVER_ID, username: 'ivan', firstName: 'Ivan', lastName: 'Petrov' },
+};
+
 describe('TripService', () => {
     let tripRepository: {
         searchTrips: ReturnType<typeof vi.fn>;
+        findTripsByDriver: ReturnType<typeof vi.fn>;
         findTripById: ReturnType<typeof vi.fn>;
         createTrip: ReturnType<typeof vi.fn>;
         updateTrip: ReturnType<typeof vi.fn>;
@@ -34,6 +60,7 @@ describe('TripService', () => {
     beforeEach(() => {
         tripRepository = {
             searchTrips: vi.fn(),
+            findTripsByDriver: vi.fn(),
             findTripById: vi.fn(),
             createTrip: vi.fn(),
             updateTrip: vi.fn(),
@@ -43,20 +70,48 @@ describe('TripService', () => {
     });
 
     describe('searchTrips', () => {
-        it('passes the filters to the repository and returns its result', async () => {
-            const trips = [makeTrip()];
-            tripRepository.searchTrips.mockResolvedValue(trips);
+        it('passes the filters to the repository and returns the trips as response dtos', async () => {
+            tripRepository.searchTrips.mockResolvedValue([makeTrip()]);
             const filters = { startLocation: 'Sofia', seats: 2 };
 
             const result = await service.searchTrips(filters);
 
             expect(tripRepository.searchTrips).toHaveBeenCalledWith(filters);
-            expect(result).toBe(trips);
+            expect(result).toEqual([expectedTripResponse]);
+        });
+    });
+
+    describe('getDriverTrips', () => {
+        it("returns the driver's trips as response dtos", async () => {
+            tripRepository.findTripsByDriver.mockResolvedValue([makeTrip(), makeTrip({ id: 11 })]);
+
+            const result = await service.getDriverTrips(DRIVER_ID);
+
+            expect(tripRepository.findTripsByDriver).toHaveBeenCalledWith(DRIVER_ID);
+            expect(result).toEqual([expectedTripResponse, { ...expectedTripResponse, id: 11 }]);
+        });
+    });
+
+    describe('getTripDetailsById', () => {
+        it('returns the trip with the driver, without their email or password', async () => {
+            tripRepository.findTripById.mockResolvedValue(makeTrip());
+
+            const result = await service.getTripDetailsById(10);
+
+            expect(result).toEqual(expectedTripResponse);
+            expect(result.driver).not.toHaveProperty('email');
+            expect(result.driver).not.toHaveProperty('password');
+        });
+
+        it('throws NotFoundError when the trip does not exist', async () => {
+            tripRepository.findTripById.mockResolvedValue(null);
+
+            await expect(service.getTripDetailsById(10)).rejects.toThrow(NotFoundError);
         });
     });
 
     describe('getTripById', () => {
-        it('returns the trip', async () => {
+        it('returns the trip entity for internal use', async () => {
             const trip = makeTrip();
             tripRepository.findTripById.mockResolvedValue(trip);
 
@@ -75,7 +130,7 @@ describe('TripService', () => {
             const tripData = {
                 startLocation: 'Sofia',
                 endLocation: 'Plovdiv',
-                startTime: new Date('2026-10-20T10:00:00Z'),
+                startTime: START_TIME,
                 availableSeats: 3,
                 price: 15,
             };

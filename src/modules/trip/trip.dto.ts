@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { publicUserResponseSchema } from "../user/user.dto";
 
 export const createTripSchema = z.object({
     startLocation: z.string("Start location as a string is required").trim().min(3, "Start location must be a string and at least 3 characters long.").max(255, "Start location must be at most 255 characters long."),
@@ -40,3 +41,10 @@ export const publicTripResponseSchema = z.object({
 });
 
 export type PublicTripResponseDto = z.infer<typeof publicTripResponseSchema>;
+
+export const tripResponseSchema = publicTripResponseSchema.extend({
+    availableSeats: z.number(),
+    driver: publicUserResponseSchema,
+});
+
+export type TripResponseDto = z.infer<typeof tripResponseSchema>;

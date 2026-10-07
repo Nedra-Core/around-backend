@@ -1,4 +1,4 @@
-import { DataSource, In, Repository } from "typeorm";
+import { And, DataSource, FindOptionsWhere, ILike, In, IsNull, LessThan, MoreThan, MoreThanOrEqual, Repository } from "typeorm";
 import { CreateTripDto, SearchTripsDto, UpdateTripDto } from "./trip.dto";
 import { Trip } from "./trip.entity";
 import { Booking, BookingStatus } from "../booking/booking.entity";
@@ -12,15 +12,18 @@ export class TripRepository {
     }
 
     async searchTrips(filters: SearchTripsDto): Promise<Trip[]> {
-        const query = this.tripRepository.createQueryBuilder('trip')
-            .where('trip.startTime > :now', { now: new Date() });
+        const now = new Date();
+        const where: FindOptionsWhere<Trip> = {
+            deletedAt: IsNull(),
+            startTime: MoreThan(now),
+        };
 
         if (filters.startLocation) {
-            query.andWhere('trip.startLocation ILIKE :startLocation', { startLocation: `%${filters.startLocation}%` });
+            where.startLocation = ILike(`%${filters.startLocation}%`);
         }
 
         if (filters.endLocation) {
-            query.andWhere('trip.endLocation ILIKE :endLocation', { endLocation: `%${filters.endLocation}%` });
+            where.endLocation = ILike(`%${filters.endLocation}%`);
         }
 
         if (filters.date) {
@@ -28,18 +31,36 @@ export class TripRepository {
             startOfDay.setUTCHours(0, 0, 0, 0);
             const endOfDay = new Date(startOfDay);
             endOfDay.setUTCDate(endOfDay.getUTCDate() + 1);
-            query.andWhere('trip.startTime >= :startOfDay AND trip.startTime < :endOfDay', { startOfDay, endOfDay });
+            where.startTime = And(MoreThan(now), MoreThanOrEqual(startOfDay), LessThan(endOfDay));
         }
 
         if (filters.seats) {
-            query.andWhere('trip.availableSeats >= :seats', { seats: filters.seats });
+            where.availableSeats = MoreThanOrEqual(filters.seats);
         }
 
-        return query.orderBy('trip.startTime', 'ASC').getMany();
+        return this.tripRepository.find({
+            where,
+            relations: { driver: true },
+            withDeleted: true,
+            order: { startTime: 'ASC' },
+        });
+    }
+
+    async findTripsByDriver(driverId: number): Promise<Trip[]> {
+        return this.tripRepository.find({
+            where: { driverId, deletedAt: IsNull() },
+            relations: { driver: true },
+            withDeleted: true,
+            order: { startTime: 'DESC' },
+        });
     }
 
     async findTripById(id: number): Promise<Trip | null> {
-        return this.tripRepository.findOne({ where: { id } });
+        return this.tripRepository.findOne({ 
+            where: { id, deletedAt: IsNull() },
+            relations: { driver: true },
+            withDeleted: true,
+        });
     }
     
       async createTrip(authUserId: number, trip: CreateTripDto) : Promise<Trip> {
