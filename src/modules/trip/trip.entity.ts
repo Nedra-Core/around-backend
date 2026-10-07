@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { User } from '../user/user.entity';
 
 @Entity({ name: 'trips' })
 export class Trip {
@@ -7,6 +8,10 @@ export class Trip {
 
   @Column({ name: 'driver_id' })
   driverId!: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'driver_id' })
+  driver!: User;
 
   @Column({ name: 'start_location' })
   startLocation!: string;
