@@ -108,6 +108,8 @@ All endpoints are under `/api`. Endpoints marked 🔒 require an `Authorization:
 | Method | Path | Description |
 |---|---|---|
 | `GET` | `/trips` 🔒 | Search upcoming trips. Optional query: `startLocation`, `endLocation`, `date`, `seats` |
+| `GET` | `/trips/me` 🔒 | List your own trips as a driver. |
+| `GET` | `/trips/:id` 🔒 | Get a driver's trip. |
 | `POST` | `/trips` 🔒 | Create a trip. You are the driver. |
 | `PUT` | `/trips/:id` 🔒 | Update your trip |
 | `DELETE` | `/trips/:id` 🔒 | Delete your trip. Its pending and approved bookings become rejected. |
