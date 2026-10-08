@@ -46,6 +46,15 @@ const expectedTripResponse = {
     driver: { id: DRIVER_ID, username: 'ivan', firstName: 'Ivan', lastName: 'Petrov' },
 };
 
+const expectedCreateTripResponse = {
+    id: 10,
+    startLocation: 'Sofia',
+    endLocation: 'Plovdiv',
+    startTime: START_TIME,
+    price: 15,
+    availableSeats: 3,
+};
+
 describe('TripService', () => {
     let tripRepository: {
         searchTrips: ReturnType<typeof vi.fn>;
@@ -140,7 +149,7 @@ describe('TripService', () => {
             const result = await service.createTrip(DRIVER_ID, tripData);
 
             expect(tripRepository.createTrip).toHaveBeenCalledWith(DRIVER_ID, tripData);
-            expect(result).toBe(trip);
+            expect(result).toEqual(expectedCreateTripResponse);
         });
     });
 

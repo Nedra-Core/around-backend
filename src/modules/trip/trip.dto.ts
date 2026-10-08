@@ -48,3 +48,9 @@ export const tripResponseSchema = publicTripResponseSchema.extend({
 });
 
 export type TripResponseDto = z.infer<typeof tripResponseSchema>;
+
+export const createTripResponseSchema = tripResponseSchema.omit({
+    driver: true,
+});
+
+export type CreateTripResponseDto = z.infer<typeof createTripResponseSchema>;
