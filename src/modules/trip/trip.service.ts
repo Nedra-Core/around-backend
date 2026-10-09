@@ -1,5 +1,5 @@
 import { TripRepository } from './trip.repository';
-import { CreateTripDto, CreateTripResponseDto, SearchTripsDto, TripResponseDto, UpdateTripDto } from './trip.dto';
+import { CreateTripDto, CreateTripResponseDto, SearchTripsDto, SearchTripsResponseDto, TripResponseDto, UpdateTripDto } from './trip.dto';
 import { Trip } from './trip.entity';
 import { ForbiddenError, NotFoundError } from '../../exceptions/custom.errors';
 import { mapToCreateTripResponseDto, mapToTripResponseDto } from './trip.mapper';
@@ -7,9 +7,14 @@ import { mapToCreateTripResponseDto, mapToTripResponseDto } from './trip.mapper'
 export class TripService {
     constructor(private tripRepository: TripRepository) { }
 
-    async searchTrips(filters: SearchTripsDto): Promise<TripResponseDto[]> {
-        const trips = await this.tripRepository.searchTrips(filters);
-        return trips.map(mapToTripResponseDto);
+    async searchTrips(filters: SearchTripsDto): Promise<SearchTripsResponseDto> {
+        const [trips, total] = await this.tripRepository.searchTrips(filters);
+        return {
+            items: trips.map(mapToTripResponseDto),
+            total,
+            page: filters.page,
+            limit: filters.limit,
+        };
     }
 
     async getDriverTrips(authUserId: number): Promise<TripResponseDto[]> {
@@ -32,7 +37,7 @@ export class TripService {
         }
         return trip;
     }
-    
+
     async createTrip(authUserId: number, tripData: CreateTripDto): Promise<CreateTripResponseDto> {
         const trip = await this.tripRepository.createTrip(authUserId, tripData);
         return mapToCreateTripResponseDto(trip);

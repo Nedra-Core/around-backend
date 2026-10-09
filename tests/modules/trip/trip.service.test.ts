@@ -79,14 +79,14 @@ describe('TripService', () => {
     });
 
     describe('searchTrips', () => {
-        it('passes the filters to the repository and returns the trips as response dtos', async () => {
-            tripRepository.searchTrips.mockResolvedValue([makeTrip()]);
-            const filters = { startLocation: 'Sofia', seats: 2 };
+        it('passes the filters to the repository and returns the trips as response dtos with pagination info', async () => {
+            tripRepository.searchTrips.mockResolvedValue([[makeTrip()], 1]);
+            const filters = { startLocation: 'Sofia', seats: 2, page: 1, limit: 10 };
 
             const result = await service.searchTrips(filters);
 
             expect(tripRepository.searchTrips).toHaveBeenCalledWith(filters);
-            expect(result).toEqual([expectedTripResponse]);
+            expect(result).toEqual({ items: [expectedTripResponse], total: 1, page: 1, limit: 10 });
         });
     });
 

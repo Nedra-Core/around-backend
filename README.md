@@ -107,12 +107,47 @@ All endpoints are under `/api`. Endpoints marked 🔒 require an `Authorization:
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/trips` 🔒 | Search upcoming trips. Optional query: `startLocation`, `endLocation`, `date`, `seats` |
-| `GET` | `/trips/me` 🔒 | List your own trips as a driver. |
-| `GET` | `/trips/:id` 🔒 | Get a driver's trip. |
+| `GET` | `/trips` 🔒 | Search upcoming trips, one page at a time. See [Searching trips](#searching-trips). |
+| `GET` | `/trips/me` 🔒 | List your own trips as a driver, newest first. |
+| `GET` | `/trips/:id` 🔒 | Get a trip's details, including the driver's public profile. |
 | `POST` | `/trips` 🔒 | Create a trip. You are the driver. |
 | `PUT` | `/trips/:id` 🔒 | Update your trip |
 | `DELETE` | `/trips/:id` 🔒 | Delete your trip. Its pending and approved bookings become rejected. |
+
+#### Searching trips
+
+All query parameters are optional:
+
+| Parameter | Description |
+|---|---|
+| `startLocation`, `endLocation` | Case-insensitive partial match, e.g. `sof` matches `Sofia` |
+| `date` | Only trips on this day (UTC), e.g. `2026-10-20` |
+| `seats` | Only trips with at least this many available seats |
+| `page` | Page number, starting from 1. Default: `1` |
+| `limit` | Trips per page, at most 100. Default: `20` |
+
+Only trips that have not started yet are returned, ordered by start time. The response is paginated:
+
+```json
+{
+  "items": [
+    {
+      "id": 12,
+      "startLocation": "Sofia",
+      "endLocation": "Plovdiv",
+      "startTime": "2026-10-20T10:00:00.000Z",
+      "price": 15,
+      "availableSeats": 3,
+      "driver": { "id": 4, "username": "ivan", "firstName": "Ivan", "lastName": "Petrov" }
+    }
+  ],
+  "total": 37,
+  "page": 1,
+  "limit": 20
+}
+```
+
+`total` is the number of matching trips across all pages, so the number of pages is `Math.ceil(total / limit)`.
 
 ### Bookings
 

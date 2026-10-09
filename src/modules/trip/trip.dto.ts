@@ -28,6 +28,8 @@ export const searchTripsSchema = z.object({
     endLocation: z.string().trim().min(1, "End location must not be empty").max(255, "End location must be at most 255 characters long.").optional(),
     date: z.coerce.date("Date must be a valid date").optional(),
     seats: z.coerce.number("Seats must be a number").int("Seats must be an integer").positive("Seats must be a positive number").max(10, "Seats must be at most 10").optional(),
+    page: z.coerce.number("Page must be a number").int("Page must be an integer").positive("Page must be a positive number").default(1),
+    limit: z.coerce.number("Limit must be a number").int("Limit must be an integer").positive("Limit must be a positive number").max(100, "Limit must be at most 100").default(20),
 });
 
 export type SearchTripsDto = z.infer<typeof searchTripsSchema>;
@@ -54,3 +56,12 @@ export const createTripResponseSchema = tripResponseSchema.omit({
 });
 
 export type CreateTripResponseDto = z.infer<typeof createTripResponseSchema>;
+
+export const searchTripsResponseSchema = z.object({
+    items: z.array(tripResponseSchema),
+    total: z.number(),
+    page: z.number(),
+    limit: z.number(),
+});
+
+export type SearchTripsResponseDto = z.infer<typeof searchTripsResponseSchema>;

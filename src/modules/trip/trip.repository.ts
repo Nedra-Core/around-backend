@@ -11,7 +11,7 @@ export class TripRepository {
         this.tripRepository = this.dataSource.getRepository(Trip);
     }
 
-    async searchTrips(filters: SearchTripsDto): Promise<Trip[]> {
+    async searchTrips(filters: SearchTripsDto): Promise<[Trip[], number]> {
         const now = new Date();
         const where: FindOptionsWhere<Trip> = {
             deletedAt: IsNull(),
@@ -38,11 +38,13 @@ export class TripRepository {
             where.availableSeats = MoreThanOrEqual(filters.seats);
         }
 
-        return this.tripRepository.find({
+        return this.tripRepository.findAndCount({
             where,
             relations: { driver: true },
             withDeleted: true,
-            order: { startTime: 'ASC' },
+            order: { startTime: 'ASC', id: 'ASC' },
+            skip: (filters.page - 1) * filters.limit,
+            take: filters.limit,
         });
     }
 
